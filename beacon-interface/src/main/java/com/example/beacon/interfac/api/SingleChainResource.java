@@ -1,5 +1,6 @@
 package com.example.beacon.interfac.api;
 
+import com.example.beacon.interfac.domain.service.ActiveChainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,54 +21,92 @@ import com.example.beacon.interfac.domain.service.QuerySinglePulsesService;
 public class SingleChainResource {
 
     private final QuerySinglePulsesService singlePulsesService;
+    private final ActiveChainService activeChainService;
 
     @Autowired
-    public SingleChainResource(QuerySinglePulsesService singlePulsesService) {
+    public SingleChainResource(QuerySinglePulsesService singlePulsesService, ActiveChainService activeChainService) {
         this.singlePulsesService = singlePulsesService;
+        this.activeChainService = activeChainService;
+    }
+
+    private Long checkChain(String chainIndex) throws NumberFormatException{
+        Long index = 1l;
+
+        if(chainIndex.equals("last")){
+            return activeChainService.get().getChainIndex();
+        }
+
+        index = Long.parseLong(chainIndex);
+
+        return index;
     }
 
     @GetMapping("/first")
     @ResponseBody
-    public ResponseEntity first(@PathVariable Long chainIndex){
-        PulseDto pulseDto = singlePulsesService.firstDto(chainIndex);
+    public ResponseEntity first(@PathVariable String chainIndex){
+
+        Long index = 1l;
+
+        try {
+            index = checkChain(chainIndex);
+        }
+        catch (NumberFormatException nfe){
+            return ResourceResponseUtil.invalidCall();
+        }
+
+        PulseDto pulseDto = singlePulsesService.firstDto(index);
 
         if (pulseDto==null){
-            return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+            return ResourceResponseUtil.pulseNotAvailable();
         }
 
         return new ResponseEntity(pulseDto, HttpStatus.OK);
     }
 
-    @GetMapping("/last")
+    @GetMapping(value = {"/last","","/"})
     @ResponseBody
-    public ResponseEntity last(@PathVariable Long chainIndex){
+    public ResponseEntity last(@PathVariable String chainIndex){
+
+        Long index = 1l;
+
         try {
-            PulseDto pulseDto = singlePulsesService.lastDto(chainIndex);
+            index = checkChain(chainIndex);
+            PulseDto pulseDto = singlePulsesService.lastDto(index);
 
             if (pulseDto==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(pulseDto, HttpStatus.OK);
 
-        } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (NumberFormatException nfe){
+            return ResourceResponseUtil.invalidCall();
+        }
+        catch (Exception e){
+            return ResourceResponseUtil.badRequest();
         }
     }
 
     @GetMapping("/{pulseIndex}")
     @ResponseBody
-    public ResponseEntity chainAndPulse(@PathVariable Long chainIndex, @PathVariable Long pulseIndex){
+    public ResponseEntity chainAndPulse(@PathVariable String chainIndex, @PathVariable Long pulseIndex){
+        Long index = 1l;
+
         try {
-            PulseDto pulseDto = singlePulsesService.findByChainAndPulseId(chainIndex, pulseIndex);
+            index = checkChain(chainIndex);
+            PulseDto pulseDto = singlePulsesService.findByChainAndPulseId(index, pulseIndex);
 
             if (pulseDto==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
 
             return new ResponseEntity(pulseDto, HttpStatus.OK);
         }
+        catch (NumberFormatException nfe){
+            return ResourceResponseUtil.invalidCall();
+        }
         catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.badRequest();
         }
     }
 

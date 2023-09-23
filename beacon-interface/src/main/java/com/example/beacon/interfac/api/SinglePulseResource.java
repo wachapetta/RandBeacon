@@ -33,14 +33,14 @@ public class SinglePulseResource {
             PulseDto byTimestamp = singlePulsesService.findSpecificTime(zonedDateTime);
 
             if (byTimestamp==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(byTimestamp, HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -52,14 +52,14 @@ public class SinglePulseResource {
             PulseDto byTimestamp = singlePulsesService.findNext(zonedDateTime);
 
             if (byTimestamp==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(byTimestamp, HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -70,33 +70,33 @@ public class SinglePulseResource {
             PulseDto byTimestamp = singlePulsesService.findPrevious(zonedDateTime);
 
             if (byTimestamp==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(byTimestamp, HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
 
     }
 
-    @GetMapping("last")
+    @GetMapping(value = {"/last","","/"})
     @ResponseBody
     public ResponseEntity last(){
         try {
             PulseDto byTimestamp = singlePulsesService.findLast();
 
             if (byTimestamp==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(byTimestamp, HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 

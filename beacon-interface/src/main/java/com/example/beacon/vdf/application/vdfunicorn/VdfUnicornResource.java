@@ -1,5 +1,6 @@
 package com.example.beacon.vdf.application.vdfunicorn;
 
+import com.example.beacon.interfac.api.ResourceResponseUtil;
 import com.example.beacon.interfac.domain.pulse.ExternalDto;
 import com.example.beacon.vdf.application.VdfPulseDto;
 import com.example.beacon.vdf.application.VdfSeedDto;
@@ -56,11 +57,11 @@ public class VdfUnicornResource {
         try {
             VdfUnicornEntity byPulseIndex = vdfUnicornRepository.findByPulseIndex(Long.parseLong(pulseIndex));
             if (byPulseIndex == null) {
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -72,14 +73,14 @@ public class VdfUnicornResource {
             VdfUnicornEntity byTimeStamp = vdfUnicornRepository.findByTimeStamp(zonedDateTime);
 
             if (byTimeStamp==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -90,7 +91,7 @@ public class VdfUnicornResource {
         VdfUnicornEntity byPulseIndex = vdfUnicornRepository.findByPulseIndex(first);
 
         if (byPulseIndex==null){
-            return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+            return ResourceResponseUtil.pulseNotAvailable();
         }
 
         return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
@@ -104,16 +105,16 @@ public class VdfUnicornResource {
             VdfUnicornEntity next = vdfUnicornRepository.findNext(zonedDateTime);
 
             if (next==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
 
             VdfUnicornEntity byTimeStamp = vdfUnicornRepository.findByTimeStamp(next.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -124,22 +125,22 @@ public class VdfUnicornResource {
             VdfUnicornEntity previous = vdfUnicornRepository.findPrevious(zonedDateTime);
 
             if (previous==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
 
             VdfUnicornEntity byTimeStamp = vdfUnicornRepository.findByTimeStamp(previous.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
 
     }
 
-    @GetMapping("/last")
+    @GetMapping(value = {"/last","","/","/pulse"})
     @ResponseBody
     public ResponseEntity last(){
         try {
@@ -149,14 +150,14 @@ public class VdfUnicornResource {
             VdfUnicornEntity byPulseIndex = vdfUnicornRepository.findByPulseIndex(maxId);
 
             if (byPulseIndex==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -165,16 +166,16 @@ public class VdfUnicornResource {
         try {
 
             if (!vdfUnicornService.isOpen()){
-                return new ResponseEntity("Not open", HttpStatus.BAD_REQUEST);
+                return ResourceResponseUtil.badRequest();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            new ResponseEntity("Internal server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
 
         vdfUnicornService.addSeed(seedPostDto);
-        return new ResponseEntity("Created", HttpStatus.CREATED);
+        return new ResponseEntity("External Contribution Registered.", HttpStatus.CREATED);
     }
 
     private VdfPulseDto convertToDto(VdfUnicornEntity entity){
