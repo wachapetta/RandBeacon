@@ -21,8 +21,18 @@ public class SeedBuilder {
 //     Beacon Combination
     public List<SeedSourceDto> getPreDefSeedCombination(){
         final List<SeedSourceDto> seedList = new ArrayList<>();
-        seedList.add(context.getBean(SeedLastNist.class).getSeed());
-        seedList.add(context.getBean(SeedLastChile.class).getSeed());
+        SeedSourceDto nistSeed = context.getBean(SeedLastNist.class).getSeed();
+        SeedSourceDto uChileSeed = context.getBean(SeedLastChile.class).getSeed();
+        SeedSourceDto anuSeed = context.getBean(SeedAnuQuantumRNG.class).getSeed();
+
+        if(nistSeed!=null)
+            seedList.add(nistSeed);
+        if(uChileSeed!=null)
+            seedList.add(uChileSeed);
+        if(anuSeed != null)
+            seedList.add(anuSeed);
+
+
         return new ArrayList<>(seedList);
     }
 
