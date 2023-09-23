@@ -41,17 +41,26 @@ public class SequenceOfPulsesResource {
             SkiplistDto skiplist = new SkiplistDto(sequence);
 
             if (sequence==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(skiplist, HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);}
-        catch (BadRequestException e){
-            return new ResponseEntity("Bad Request: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.invalidCall();
         }
+        catch (BadRequestException e){
+            return ResourceResponseUtil.notImplemented();
+        } catch (Exception e){
+            return ResourceResponseUtil.internalError();
+        }
+    }
+
+    @GetMapping(value = {"/",""})
+    @ResponseBody
+    public ResponseEntity skypListParams(@RequestParam String startTimestamp, @RequestParam String endTimestamp){
+
+        return skypList(startTimestamp,endTimestamp);
+
     }
 
 }
