@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
@@ -82,7 +83,7 @@ public class SinglePulseResource {
 
     }
 
-    @GetMapping(value = {"/last","","/"})
+    @GetMapping(value = {"/last"})
     @ResponseBody
     public ResponseEntity last(){
         try {
@@ -101,5 +102,71 @@ public class SinglePulseResource {
     }
 
 
+    @GetMapping(value = {"","/"})
+    @ResponseBody
+    public ResponseEntity get(@RequestParam Map<String,String> allParams){
+
+        if(allParams.containsKey("timeGT")){
+            return next(allParams.get("timeGT"));
+        }
+        else if(allParams.containsKey("timeLT")){
+            return previous(allParams.get("timeLT"));
+        }
+        else if(allParams.containsKey("timeGE")) {
+            ResponseEntity equals = specificTime(allParams.get("timeGE"));
+            if(equals.getStatusCode() == HttpStatus.OK)
+                return equals;
+
+            return next(allParams.get("timeGE"));
+        }
+        else if(allParams.containsKey("timeLE")) {
+            ResponseEntity equals = specificTime(allParams.get("timeLE"));
+            if(equals.getStatusCode() == HttpStatus.OK)
+                return equals;
+
+            return previous(allParams.get("timeLE"));
+
+        }else if(allParams.containsKey("outputValue")) {
+
+            return ResourceResponseUtil.notImplemented();
+        }
+        else if(allParams.containsKey("precommitmentValue")) {
+
+            return ResourceResponseUtil.notImplemented();
+        }
+        else if(allParams.containsKey("localRandomValue")) {
+
+            return ResourceResponseUtil.notImplemented();
+        }
+        else if(allParams.containsKey("certificateId")) {
+
+            return ResourceResponseUtil.notImplemented();
+        }else if(allParams.containsKey("use")) {
+
+            if(allParams.get("use").equals("first")){
+                return first();
+            }
+        }
+
+        return last();
+    }
+
+    @GetMapping(value = {"/first"})
+    @ResponseBody
+    private ResponseEntity first() {
+        try {
+            PulseDto first = singlePulsesService.firstDto(1l);
+
+            if (first==null){
+                return ResourceResponseUtil.pulseNotAvailable();
+            }
+            return new ResponseEntity(first, HttpStatus.OK);
+
+        } catch (DateTimeParseException e){
+            return ResourceResponseUtil.invalidCall();
+        } catch (Exception e){
+            return ResourceResponseUtil.internalError();
+        }
+    }
 
 }

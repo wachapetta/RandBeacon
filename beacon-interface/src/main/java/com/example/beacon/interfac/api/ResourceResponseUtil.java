@@ -29,7 +29,7 @@ public abstract class ResourceResponseUtil {
     }
 
     public static ResponseEntity notImplemented() {
-        return ResourceResponseUtil.createErrorResponse(HttpStatus.NOT_IMPLEMENTED,"Probably not implemented.");
+        return ResourceResponseUtil.createErrorResponse(HttpStatus.NOT_IMPLEMENTED,"Feature not implemented.");
     }
 
     public static ResponseEntity badRequest() {

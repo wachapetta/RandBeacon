@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -43,7 +43,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.28</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -90,7 +91,13 @@
 			<artifactId>beacon-libs</artifactId>
 			<version>1.0.0.RELEASE</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>3.0.8</version>
+    </dependency>
+	
 	</dependencies>
 
 	<build>
@@ -104,16 +111,17 @@
 				</configuration>
 			</plugin>
 			<!-- Docker -->
+			<!--
 			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>dockerfile-maven-plugin</artifactId>
-				<version>1.4.10</version>
+				<groupId>com.spotify.dockerfile-maven</groupId>
+				<artifactId>dockerfile-maven</artifactId>
+				<version>1.4.14-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<id>default</id>
 						<goals>
 							<goal>build</goal>
-							<!-- <goal>push</goal> -->
+							<goal>push</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -121,7 +129,21 @@
 					<repository>lpcorrea/${project.name}</repository>
 					<tag>${project.version}</tag>
 					<skipDockerInfo>true</skipDockerInfo>
+					<buildArgs>
+						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
 				</configuration>
+			</plugin>-->
+			
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.3.2</version>
+				<configuration>
+                <container>
+                    <mainClass> com.example.beacon.BeaconInterfaceApplication</mainClass>                    
+                </container>
+            </configuration>
 			</plugin>
 
 			<plugin>
