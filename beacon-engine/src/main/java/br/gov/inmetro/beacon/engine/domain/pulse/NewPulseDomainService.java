@@ -6,6 +6,7 @@ import br.gov.inmetro.beacon.engine.domain.chain.ChainValueObject;
 import br.gov.inmetro.beacon.engine.domain.repository.CombinationErrors;
 import br.gov.inmetro.beacon.engine.domain.repository.EntropyRepository;
 import br.gov.inmetro.beacon.engine.domain.repository.PulsesRepository;
+import br.gov.inmetro.beacon.engine.domain.service.ActiveChainService;
 import br.gov.inmetro.beacon.engine.domain.service.PastOutputValuesService;
 import br.gov.inmetro.beacon.engine.infra.ProcessingErrorTypeEnum;
 import br.gov.inmetro.beacon.engine.infra.PulseEntity;
@@ -46,7 +47,8 @@ public class NewPulseDomainService {
 
     private PulseEntity lastPulseEntity;
 
-    private ChainValueObject activeChain;
+    private ActiveChainService activeChainService;
+    private ChainValueObject currentChain;
 
     private final PastOutputValuesService pastOutputValuesService;
 
@@ -58,10 +60,11 @@ public class NewPulseDomainService {
 
     private static final Logger logger = LoggerFactory.getLogger(NewPulseDomainService.class);
 
+
     @Autowired
     public NewPulseDomainService(Environment env, PulsesRepository pulsesRepository, EntropyRepository entropyRepository,
                                  CombinationErrors combinationErrors, PastOutputValuesService pastOutputValuesService,
-                                 BeaconVdfQueueSender beaconVdfQueueSender, ISendAlert iSendAlert) {
+                                 BeaconVdfQueueSender beaconVdfQueueSender, ISendAlert iSendAlert,ActiveChainService activeChainService) {
         this.env = env;
         this.pulsesRepository = pulsesRepository;
         this.entropyRepository = entropyRepository;
@@ -69,25 +72,34 @@ public class NewPulseDomainService {
         this.pastOutputValuesService = pastOutputValuesService;
         this.beaconVdfQueueSender = beaconVdfQueueSender;
         this.iSendAlert = iSendAlert;
+        this.activeChainService = activeChainService;
     }
+
+
+    private static boolean endOfChainPublished = false;
 
     @Transactional
     public void begin(List<EntropyDto> regularNoises) {
-        try {
 
-            this.regularNoises = regularNoises;
+        boolean hasActiveChain = activeChainService.hasActiveChain();
+        logger.warn("is there a chain active? "+hasActiveChain);
+        logger.warn("is the chain ended? "+endOfChainPublished);
+        if(hasActiveChain || !endOfChainPublished){
+            try {
+                this.regularNoises = regularNoises;
 
-            this.activeChain = ChainDomainService.getActiveChain();
-            this.lastPulseEntity = pulsesRepository.last(activeChain.getChainIndex());
-            String property = env.getProperty("beacon.number-of-entropy-sources");
+                this.currentChain = ChainDomainService.getActiveChain();
+                this.lastPulseEntity = pulsesRepository.last(currentChain.getChainIndex());
+                String property = env.getProperty("beacon.number-of-entropy-sources");
 
-            combinar(activeChain.getChainIndex(), property);
-            processarAndPersistir();
-            cleanDiscardedNumbers();
+                combinar(currentChain.getChainIndex(), property);
+                processarAndPersistir();
+                cleanDiscardedNumbers();
 
-        } catch (Exception e){
-            e.printStackTrace();
-            iSendAlert.sendException(e);
+            } catch (Exception e){
+                e.printStackTrace();
+                iSendAlert.sendException(e);
+            }
         }
     }
 
@@ -101,7 +113,7 @@ public class NewPulseDomainService {
         CombinationEnum combinationEnum = CombinationEnum.valueOf(env.getProperty("beacon.combination"));
 
         CombineDomainService combineDomainService = new CombineDomainService(regularNoises, activeChain,
-                new Integer(numberOfSources), pulseDto, combinationEnum);
+                Integer.parseInt(numberOfSources), pulseDto, combinationEnum);
         this.combineDomainResult = combineDomainService.processar();
 
         //
@@ -163,15 +175,23 @@ public class NewPulseDomainService {
                 "previous", previous.getUri()));
 
         long vPulseIndex = previous.getPulseIndex()+1;
-        String uri = env.getProperty("beacon.url") +  "/beacon/" + activeChain.getVersionUri() + "/chain/" + activeChain.getChainIndex() + "/pulse/" + vPulseIndex;
+        String uri = env.getProperty("beacon.url") +  "/beacon/" + currentChain.getVersionUri() + "/chain/" + currentChain.getChainIndex() + "/pulse/" + vPulseIndex;
 
 //        long vPulseIndexNext = vPulseIndex+1;
 
         // gap de data
         int vStatusCode = 0;
         long between = ChronoUnit.MINUTES.between(previous.getTimeStamp(), current.getTimeStamp());
+
+        if(previous.getCertificateId()!=this.certificateId)
+            vStatusCode+=4; //set the 3rd bit
+
+        if(!activeChainService.hasActiveChain()) {
+            vStatusCode += 8;
+        }
+
         if (between > 1){
-            vStatusCode = 2;
+            vStatusCode += 2; //set the 2nd bit
             List<ListValue> listValue = previous.getListValue();
 
             list.add(ListValue.getOneValue(listValue.get(1).getValue(), "hour", listValue.get(1).getUri()));
@@ -188,14 +208,14 @@ public class NewPulseDomainService {
                 list.add(ListValue.getOneValue(listValue.get(3).getValue(), "month", previous.getUri()));
                 list.add(ListValue.getOneValue(listValue.get(4).getValue(), "year", previous.getUri()));
             } else {
-                list.addAll(pastOutputValuesService.getOldPulses(current, uri));
+                list.addAll(pastOutputValuesService.getOldPulses(current, uri,currentChain));
             }
 
         }
 
         return new Pulse.Builder()
                 .setUri(uri)
-                .setChainValueObject(activeChain)
+                .setChainValueObject(currentChain)
                 .setCertificateId(this.certificateId)
                 .setPulseIndex(vPulseIndex)
                 .setTimeStamp(current.getTimeStamp())
@@ -223,12 +243,12 @@ public class NewPulseDomainService {
         list.add(ListValue.getOneValue("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "year", null));
 
-        String uri = env.getProperty("beacon.url") +  "/beacon/" + activeChain.getVersionUri() + "/chain/" + activeChain.getChainIndex() + "/pulse/" + 1;
+        String uri = env.getProperty("beacon.url") +  "/beacon/" + currentChain.getVersionUri() + "/chain/" + currentChain.getChainIndex() + "/pulse/" + 1;
 
 
         return new Pulse.Builder()
                 .setUri(uri)
-                .setChainValueObject(activeChain)
+                .setChainValueObject(currentChain)
                 .setCertificateId(this.certificateId)
                 .setPulseIndex(1)
                 .setTimeStamp(localRandomValue.getTimeStamp())
@@ -245,7 +265,7 @@ public class NewPulseDomainService {
     protected void persistOnePulse(Pulse pulse) throws InterruptedException {
         sendPulseForCombinationQueue(pulse);
 
-        Optional<PulseEntity> byChainAndTimestamp = pulsesRepository.findByChainAndTimestamp(1, pulse.getTimeStamp());
+        Optional<PulseEntity> byChainAndTimestamp = pulsesRepository.findByChainAndTimestamp(currentChain.getChainIndex(), pulse.getTimeStamp());
 
         if (!byChainAndTimestamp.isPresent()){
             pulsesRepository.save(new PulseEntity(pulse));
@@ -253,6 +273,12 @@ public class NewPulseDomainService {
             entropyRepository.deleteByTimeStamp(pulse.getTimeStamp());
 
             logger.warn("Pulse released:" + pulse.getTimeStamp());
+
+            if(!activeChainService.hasActiveChain()) {
+                NewPulseDomainService.endOfChainPublished = true;
+                logger.warn("Chain "+currentChain.getChainIndex()+" correctly finished!");
+            }
+
         } else {
             entropyRepository.deleteByTimeStamp(pulse.getTimeStamp());
             iSendAlert.sendTimestampAlreadyPublishedException(pulse);

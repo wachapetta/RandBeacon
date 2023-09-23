@@ -1,5 +1,6 @@
 package br.gov.inmetro.beacon.engine.domain.service;
 
+import br.gov.inmetro.beacon.engine.domain.chain.ChainValueObject;
 import br.gov.inmetro.beacon.engine.domain.pulse.LocalRandomValueDto;
 import br.gov.inmetro.beacon.engine.domain.repository.PulsesRepository;
 import br.gov.inmetro.beacon.engine.domain.pulse.ListValue;
@@ -19,20 +20,17 @@ public class PastOutputValuesService {
 
     private final PulsesRepository pulsesRepository;
 
-    private final ActiveChainService activeChainService;
-
     @Autowired
-    public PastOutputValuesService(PulsesRepository pulsesRepository, ActiveChainService activeChainService) {
+    public PastOutputValuesService(PulsesRepository pulsesRepository) {
         this.pulsesRepository = pulsesRepository;
-        this.activeChainService = activeChainService;
     }
 
     @Transactional
-    public List<ListValue> getOldPulses(LocalRandomValueDto currentDto, String uri){
+    public List<ListValue> getOldPulses(LocalRandomValueDto currentDto, String uri, ChainValueObject currentChain){
         List<ListValue> listValues = new ArrayList<>();
 
         ZonedDateTime primeroDaHora = currentDto.getTimeStamp().truncatedTo(ChronoUnit.HOURS);
-        Pulse pulseHour = pulsesRepository.findOldPulses(activeChainService.get().getChainIndex(), primeroDaHora);
+        Pulse pulseHour = pulsesRepository.findOldPulses(currentChain.getChainIndex(), primeroDaHora);
 
         // saber se o current é o mesmo da hora.
         if (pulseHour==null){
@@ -45,7 +43,7 @@ public class PastOutputValuesService {
 
         //dayh
         ZonedDateTime primeroDoDia = currentDto.getTimeStamp().truncatedTo(ChronoUnit.DAYS);
-        Pulse pulseDay = pulsesRepository.findOldPulses(activeChainService.get().getChainIndex(), primeroDoDia);
+        Pulse pulseDay = pulsesRepository.findOldPulses(currentChain.getChainIndex(), primeroDoDia);
 
         // saber se o current é o primeiro
 //        System.out.println(String.format("%s:%s", currentDto.getTimeStamp().get(ChronoField.HOUR_OF_DAY), currentDto.getTimeStamp().get(ChronoField.MINUTE_OF_HOUR)));
@@ -58,7 +56,7 @@ public class PastOutputValuesService {
 
         //month
         ZonedDateTime primeroDoMes = currentDto.getTimeStamp().with(ChronoField.DAY_OF_MONTH, 1).truncatedTo(ChronoUnit.DAYS);
-        Pulse pulseMonth = pulsesRepository.findOldPulses(activeChainService.get().getChainIndex(), primeroDoMes);
+        Pulse pulseMonth = pulsesRepository.findOldPulses(currentChain.getChainIndex(), primeroDoMes);
         if (pulseMonth==null){
             listValues.add(ListValue.getOneValue(currentDto.getValue(), "month", uri));  // current is the first of month
         } else {
@@ -67,7 +65,7 @@ public class PastOutputValuesService {
 
         //year
         ZonedDateTime primeroDoAno = currentDto.getTimeStamp().withDayOfYear(1).truncatedTo(ChronoUnit.DAYS);
-        Pulse pulseYear = pulsesRepository.findOldPulses(activeChainService.get().getChainIndex(), primeroDoAno);
+        Pulse pulseYear = pulsesRepository.findOldPulses(currentChain.getChainIndex(), primeroDoAno);
         if (pulseYear==null){
             listValues.add(ListValue.getOneValue(currentDto.getValue(), "year", uri));  // current is the first of year
         } else {
