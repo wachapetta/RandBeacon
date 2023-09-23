@@ -9,21 +9,24 @@ import java.util.Arrays;
 
 @Getter
 public class ApiError {
+    private int httpStatus;
     private HttpStatus status;
     private String message;
     private List<String> errors;
 
     public ApiError(HttpStatus status, String message, List<String> errors) {
         super();
+        this.httpStatus = status.value();
         this.status = status;
-        this.message = message;
+        this.message = status.getReasonPhrase();
         this.errors = errors;
     }
 
     public ApiError(HttpStatus status, String message, String error) {
         super();
+        this.httpStatus = status.value();
         this.status = status;
-        this.message = message;
+        this.message = status.getReasonPhrase();
         errors = Arrays.asList(error);
     }
 
