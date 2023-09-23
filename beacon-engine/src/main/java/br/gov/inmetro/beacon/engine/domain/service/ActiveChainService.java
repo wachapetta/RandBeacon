@@ -21,4 +21,9 @@ public class ActiveChainService {
         return new ChainValueObject(entity.getVersionUri(),entity.getVersionPulse(), entity.getCipherSuite(), entity.getPeriod(), entity.getChainIndex());
     }
 
+    public boolean hasActiveChain(){
+        int num = chainRepository.numberOfActiveChains();
+        return num>0;
+    }
+
 }
