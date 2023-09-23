@@ -7,6 +7,6 @@ import com.example.beacon.interfac.infra.PulseEntity;
 public interface PulsesQueries {
     PulseEntity last(Long chain);
     PulseEntity first(Long chain);
-    PulseEntity findByChainAndPulseId(Long chainIndex, Long pulseIndex);
+    PulseEntity findByChainAndPulseIndex(Long chainIndex, Long pulseIndex);
     PulseEntity findByTimestamp(ZonedDateTime timeStamp);
 }

@@ -21,29 +21,29 @@ public class PulsesRepositoryImpl implements PulsesQueries {
 
     @Transactional(readOnly = true)
     public PulseEntity last(Long chainIndex){
-        Long lastPulseId = (Long) manager.createQuery(
-                "select max(p.id) from PulseEntity p where p.chainIndex = :chainIndex")
+        Long pulseIndex = (Long) manager.createQuery(
+                "select max(p.pulseIndex) from PulseEntity p where p.chainIndex = :chainIndex")
                 .setParameter("chainIndex", chainIndex)
                 .getSingleResult();
     	
-        if (lastPulseId==null){
+        if (pulseIndex==null){
             return null;
         } else {
-            return findByChainAndPulseId(chainIndex, lastPulseId);
+            return findByChainAndPulseIndex(chainIndex, pulseIndex);
         }
     }
 
     @Transactional(readOnly = true)
     public PulseEntity first(Long chainIndex){
         Long firstPulseIndex = (Long) manager.createQuery(
-                "select min(p.id) from PulseEntity p where p.chainIndex = :chainIndex")
+                "select min(p.pulseIndex) from PulseEntity p where p.chainIndex = :chainIndex")
                 .setParameter("chainIndex", chainIndex)
                 .getSingleResult();
 
         if (firstPulseIndex==null){
             return null;
         } else {
-            return findByChainAndPulseId(chainIndex, firstPulseIndex);
+            return findByChainAndPulseIndex(chainIndex, firstPulseIndex);
         }
     }
 
@@ -57,14 +57,14 @@ public class PulsesRepositoryImpl implements PulsesQueries {
     }
 
     @Transactional(readOnly = true)
-    public PulseEntity findByChainAndPulseId(Long chainIndex, Long pulseId){
+    public PulseEntity findByChainAndPulseIndex(Long chainIndex, Long pulseIdx){
         try {
             PulseEntity recordEntity = (PulseEntity) manager
                     .createQuery("from PulseEntity p " +
                             "join fetch p.listValueEntities lve " +
-                            "where p.chainIndex = :chainIndex and p.id = :pulseId")
+                            "where p.chainIndex = :chainIndex and p.pulseIndex = :pulseIdx")
                     .setParameter("chainIndex", chainIndex)
-                    .setParameter("pulseId", pulseId)
+                    .setParameter("pulseIdx", pulseIdx)
                     .getSingleResult();
 
             return recordEntity;

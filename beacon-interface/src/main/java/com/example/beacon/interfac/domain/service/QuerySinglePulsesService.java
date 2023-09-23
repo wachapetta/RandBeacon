@@ -108,8 +108,8 @@ public class QuerySinglePulsesService {
 
     }
 
-    public PulseDto findByChainAndPulseId(Long chainIndex, Long pulseId){
-        PulseEntity last = pulsesRepository.findByChainAndPulseId(chainIndex, pulseId);
+    public PulseDto findByChainAndPulseId(Long chainIndex, Long pulseIdx){
+        PulseEntity last = pulsesRepository.findByChainAndPulseIndex(chainIndex, pulseIdx);
 
         if (last == null){
             return null;
