@@ -1,5 +1,6 @@
 package com.example.beacon.vdf.application.combination;
 
+import com.example.beacon.interfac.api.ResourceResponseUtil;
 import com.example.beacon.interfac.domain.pulse.ExternalDto;
 import com.example.beacon.vdf.application.VdfPulseDto;
 import com.example.beacon.vdf.application.VdfSeedDto;
@@ -32,11 +33,11 @@ public class CombinationResource {
         try {
             CombinationEntity byPulseIndex = combinationRepository.findByPulseIndex(Long.parseLong(pulseIndex));
             if (byPulseIndex == null) {
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -48,14 +49,14 @@ public class CombinationResource {
             CombinationEntity byTimeStamp = combinationRepository.findByTimeStamp(zonedDateTime);
 
             if (byTimeStamp==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -67,7 +68,7 @@ public class CombinationResource {
         CombinationEntity byPulseIndex = combinationRepository.findByPulseIndex(first);
 
         if (byPulseIndex==null){
-            return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+            return ResourceResponseUtil.pulseNotAvailable();
         }
 
         return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
@@ -81,16 +82,16 @@ public class CombinationResource {
             CombinationEntity next = combinationRepository.findNext(zonedDateTime);
 
             if (next==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
 
             CombinationEntity byTimeStamp = combinationRepository.findByTimeStamp(next.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
@@ -101,21 +102,21 @@ public class CombinationResource {
             CombinationEntity previous = combinationRepository.findPrevious(zonedDateTime);
 
             if (previous==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
 
             CombinationEntity byTimeStamp = combinationRepository.findByTimeStamp(previous.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
 
     }
 
-    @GetMapping("last")
+    @GetMapping(value = {"/last","","/","pulse"})
     @ResponseBody
     public ResponseEntity last(){
         try {
@@ -125,14 +126,14 @@ public class CombinationResource {
             CombinationEntity byPulseIndex = combinationRepository.findByPulseIndex(maxId);
 
             if (byPulseIndex==null){
-                return new ResponseEntity("Pulse Not Available.", HttpStatus.NOT_FOUND);
+                return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
 
         } catch (DateTimeParseException e){
-            return new ResponseEntity("Bad Request", HttpStatus.BAD_REQUEST);
+            return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
-            return new ResponseEntity("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResourceResponseUtil.internalError();
         }
     }
 
