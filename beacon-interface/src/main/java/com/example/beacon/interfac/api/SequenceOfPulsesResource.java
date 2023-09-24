@@ -36,7 +36,7 @@ public class SequenceOfPulsesResource {
             ZonedDateTime startTime = DateUtil.longToLocalDateTime(startTimestamp);
             ZonedDateTime endTime = DateUtil.longToLocalDateTime(endTimestamp);
 
-            List<PulseDto> sequence = querySequencePulsesService.sequence(startTime, endTime);
+            List<PulseDto> sequence = querySequencePulsesService.skiplist(endTime, startTime);
 
             SkiplistDto skiplist = new SkiplistDto(sequence);
 
@@ -51,15 +51,16 @@ public class SequenceOfPulsesResource {
         catch (BadRequestException e){
             return ResourceResponseUtil.notImplemented();
         } catch (Exception e){
+            e.printStackTrace();
             return ResourceResponseUtil.internalError();
         }
     }
 
     @GetMapping(value = {"/",""})
     @ResponseBody
-    public ResponseEntity skypListParams(@RequestParam String startTimestamp, @RequestParam String endTimestamp){
+    public ResponseEntity skypListParams(@RequestParam String anchorTime, @RequestParam String targetTime){
 
-        return skypList(startTimestamp,endTimestamp);
+        return skypList(anchorTime,targetTime);
 
     }
 

@@ -2,6 +2,7 @@ package com.example.beacon.interfac.api.dto;
 
 import com.example.beacon.interfac.domain.pulse.ExternalDto;
 import com.example.beacon.interfac.domain.pulse.ListValue;
+import com.example.beacon.interfac.infra.ListValueEntity;
 import com.example.beacon.interfac.infra.PulseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
