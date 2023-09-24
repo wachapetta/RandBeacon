@@ -183,7 +183,7 @@ public class NewPulseDomainService {
         int vStatusCode = 0;
         long between = ChronoUnit.MINUTES.between(previous.getTimeStamp(), current.getTimeStamp());
 
-        if(previous.getCertificateId()!=this.certificateId)
+        if(!previous.getCertificateId().equals(this.certificateId))
             vStatusCode+=4; //set the 3rd bit
 
         if(!activeChainService.hasActiveChain()) {
