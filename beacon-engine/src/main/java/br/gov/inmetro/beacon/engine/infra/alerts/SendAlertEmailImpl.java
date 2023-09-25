@@ -24,6 +24,7 @@ public class SendAlertEmailImpl implements ISendAlert {
     private final JavaMailSender javaMailSender;
 
     private final Environment env;
+    private final boolean enabled;
 
     private ZonedDateTime dateTimeLastAlert;
 
@@ -34,11 +35,16 @@ public class SendAlertEmailImpl implements ISendAlert {
         this.javaMailSender = javaMailSender;
         this.env = env;
         this.dateTimeLastAlert = null;
+        this.enabled = env.getProperty("beacon.mail.enabled")!=null;
     }
 
     @Override
     public void sendException(Exception exception) throws SendAlertMailException {
+
         String subject = "Inmetro Beacon - EXCEPTION (BUG in pulse generation)";
+        logger.error(subject, exception);
+        if (!enabled)  return;
+
         StringBuilder body = new StringBuilder();
         body.append(exception.getMessage());
         body.append(exception.getCause().getCause().toString());
@@ -53,6 +59,7 @@ public class SendAlertEmailImpl implements ISendAlert {
         body.append("The following pulse was discarded:\n\n");
         body.append(pulse.toString());
         logger.error(subject + ": timestamp:" + pulse.getTimeStamp());
+        if (!enabled)  return;
         send(subject, body, true);
     }
 
@@ -61,6 +68,8 @@ public class SendAlertEmailImpl implements ISendAlert {
         StringBuilder stringBuilder = new StringBuilder("ERROR: No numbers received");
         logger.error(stringBuilder.toString());
         String subject = "Inmetro Beacon - ERROR (No numbers received)";
+        logger.error(subject);
+        if (!enabled)  return;
         send(subject, new StringBuilder(), true);
     }
 
@@ -69,11 +78,16 @@ public class SendAlertEmailImpl implements ISendAlert {
         String subject = "Inmetro Beacon - WARNING";
         StringBuilder body = new StringBuilder("WARNING: One or more sources were not received\n");
         combineDomainResult.getDomainResultInText().forEach( result -> body.append("\n" + result) );
+        logger.error(subject);
+        logger.error(body.toString());
+        if (!enabled)  return;
         send(subject, body, false);
     }
 
     public void send(String subject, StringBuilder body, boolean sendImmediately){
         if (Boolean.parseBoolean(env.getProperty("beacon.send.alerts.by.email"))) {
+
+            if (!enabled)  return;
 
             if (sendImmediately){
                 sendList(subject, body.toString());
@@ -89,6 +103,8 @@ public class SendAlertEmailImpl implements ISendAlert {
         String from = env.getProperty("beacon.mail.from");
         String[] to = env.getProperty("beacon.mail.to").split(",");
 
+        if (!enabled)  return;
+
         for (String email: to) {
             sendSimpleMessage(from, email, null, subject, body);
         }
@@ -98,6 +114,7 @@ public class SendAlertEmailImpl implements ISendAlert {
     protected void sendSimpleMessage(String from, String to, String co, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            if (!enabled)  return;
 
             message.setFrom(from);
             message.setTo(to);
