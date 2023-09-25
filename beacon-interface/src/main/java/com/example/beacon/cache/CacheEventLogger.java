@@ -13,6 +13,6 @@ public class CacheEventLogger
     @Override
     public void onEvent(
             CacheEvent<? extends Object, ? extends Object> cacheEvent) {
-        logger.warn("cache:" + cacheEvent.getKey() +  cacheEvent.getOldValue() +  cacheEvent.getNewValue());
+        logger.warn("Key: {} | EventType: {} | Old value: {} | New value: {}", cacheEvent.getKey(), cacheEvent.getType(),  cacheEvent.getOldValue(),  cacheEvent.getNewValue());
     }
 }
