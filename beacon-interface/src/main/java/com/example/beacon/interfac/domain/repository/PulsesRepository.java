@@ -1,8 +1,11 @@
 package com.example.beacon.interfac.domain.repository;
 
 import com.example.beacon.interfac.infra.PulseEntity;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
@@ -22,7 +25,7 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
 
 
     @Query(value = "SELECT distinct * from pulse p where p.time_stamp> ?2 AND p.time_stamp< ?1 AND  p.time_stamp < ?3", nativeQuery = true)
-    List<PulseEntity> skiplistByMinutes(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextHour);
+    List<PulseEntity> skiplistByMinutes(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextHour, Pageable pageable);
 
     @Query(value = "SELECT distinct * from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?3 and minute(p.time_stamp)=0",nativeQuery = true)
     List<PulseEntity> skiplistByHours(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextDay);
@@ -35,4 +38,45 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
 
     @Query(value = "SELECT distinct * from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0",nativeQuery = true)
     List<PulseEntity> skiplistByYears(ZonedDateTime anchor, ZonedDateTime target);
+
+
+    String completeSkipListQuery = ""+
+            "select * from "+
+                    "( "+
+                            "SELECT distinct * from pulse p where p.time_stamp> ?2 AND p.time_stamp< ?1 AND  p.time_stamp < ?6 "+
+                                "union "+
+                            "SELECT distinct * from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?5 and minute(p.time_stamp)=0 "+
+                                "union "+
+                            "SELECT distinct * from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
+                                "union "+
+                            "SELECT distinct * from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
+                                "union "+
+                            "SELECT distinct * from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
+                    ") p order by p.time_stamp";
+
+
+    @Query(value = completeSkipListQuery, nativeQuery = true)
+    List<PulseEntity> getSkiplist(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextYear,ZonedDateTime nextMonth,ZonedDateTime nextDay, ZonedDateTime nextHour, Pageable pageable);
+
+
+    String countSkipListQuery = ""+
+            "select count(id) from "+
+            "( "+
+            "SELECT distinct id from pulse p where p.time_stamp> ?2 AND p.time_stamp< ?1 AND  p.time_stamp < ?6 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?5 and minute(p.time_stamp)=0 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and  p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
+            ") p";
+    @Cacheable(value = "countSkipLists",key = "#anchor.toInstant().toEpochMilli().toString()+#target.toInstant().toEpochMilli().toString()")
+    @Query(value = countSkipListQuery, nativeQuery = true)
+    Integer countSkiplist(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextYear,ZonedDateTime nextMonth,ZonedDateTime nextDay, ZonedDateTime nextHour);
+
+
+
+
 }

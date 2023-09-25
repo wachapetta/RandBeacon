@@ -1,7 +1,7 @@
 package com.example.beacon.interfac.api;
 
 import com.example.beacon.interfac.api.dto.PulseDto;
-import com.example.beacon.interfac.api.dto.SkiplistDto;
+import com.example.beacon.interfac.api.dto.PagedResponseDto;
 import com.example.beacon.interfac.domain.service.BadRequestException;
 import com.example.beacon.interfac.domain.service.QuerySequencePulsesService;
 import com.example.beacon.vdf.infra.util.DateUtil;
@@ -30,20 +30,27 @@ public class SequenceOfPulsesResource {
 
     @GetMapping("time/{startTimestamp}/{endTimestamp}")
     @ResponseBody
-    public ResponseEntity skypList(@PathVariable String startTimestamp, @PathVariable String endTimestamp){
+    public ResponseEntity skypList(@PathVariable String startTimestamp, @PathVariable String endTimestamp,@RequestParam(defaultValue = "0") int offset,@RequestParam(defaultValue = "0") int limit){
         try {
+
+            if(offset<0 )
+                return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,"Offset parameter must be a number >= 0");
+
+            if(limit==0) limit = 25;
+
+            if(limit >50)
+                return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,"Limit parameter must be a number between 1 and 50.");
 
             ZonedDateTime startTime = DateUtil.longToLocalDateTime(startTimestamp);
             ZonedDateTime endTime = DateUtil.longToLocalDateTime(endTimestamp);
 
-            List<PulseDto> sequence = querySequencePulsesService.skiplist(endTime, startTime);
 
-            SkiplistDto skiplist = new SkiplistDto(sequence);
+            PagedResponseDto skipList = querySequencePulsesService.skiplist(endTime, startTime,offset,limit);
 
-            if (sequence==null){
+            if (skipList==null){
                 return ResourceResponseUtil.pulseNotAvailable();
             }
-            return new ResponseEntity(skiplist, HttpStatus.OK);
+            return new ResponseEntity(skipList, HttpStatus.OK);
 
         } catch (DateTimeParseException e){
             return ResourceResponseUtil.invalidCall();
@@ -58,9 +65,9 @@ public class SequenceOfPulsesResource {
 
     @GetMapping(value = {"/",""})
     @ResponseBody
-    public ResponseEntity skypListParams(@RequestParam String anchorTime, @RequestParam String targetTime){
+    public ResponseEntity skypListParams(@RequestParam String anchorTime, @RequestParam String targetTime,@RequestParam(defaultValue = "0") int offset,@RequestParam(defaultValue = "0") int limit){
 
-        return skypList(anchorTime,targetTime);
+        return skypList(targetTime,anchorTime,offset, limit);
 
     }
 

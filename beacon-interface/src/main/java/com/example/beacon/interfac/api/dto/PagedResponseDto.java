@@ -1,6 +1,5 @@
 package com.example.beacon.interfac.api.dto;
 
-import com.example.beacon.interfac.domain.pulse.ListValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,14 +13,14 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SkiplistDto {
+public class PagedResponseDto {
     private  long totalCount =0l;
     private boolean incomplete = false;
-    private Map<String,String> links = new HashMap<String,String>();
+    private Map<String,String> links;
 //    private List<PulseDto> skiplist;
     private List<PulseSummaryDto> data;
 
-    public SkiplistDto(List<PulseDto> sequence) {
+    public PagedResponseDto(List<PulseDto> sequence) {
 
         this.data = new ArrayList<PulseSummaryDto> ();
         this.totalCount = sequence.size();
