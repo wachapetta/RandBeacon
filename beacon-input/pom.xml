@@ -45,6 +45,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+			<!--<version>8.0.28</version>-->
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -55,6 +56,8 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+			<version>1.18.28</version>
+			<!--<scope>provided</scope>-->
 		</dependency>
 
 		<dependency>
@@ -79,25 +82,15 @@
 					<executable>true</executable>
 				</configuration>
 			</plugin>
-			<!-- Docker -->
 			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>dockerfile-maven-plugin</artifactId>
-				<version>1.4.10</version>
-				<executions>
-					<execution>
-						<id>default</id>
-						<goals>
-							<goal>build</goal>
-							<!-- <goal>push</goal> -->
-						</goals>
-					</execution>
-				</executions>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.3.2</version>
 				<configuration>
-					<repository>lpcorrea/${project.name}</repository>
-					<tag>${project.version}</tag>
-					<skipDockerInfo>true</skipDockerInfo>
-				</configuration>
+                <container>
+                    <mainClass> br.gov.inmetro.beacon.input.BeaconInputApplication</mainClass>
+                </container>
+            </configuration>
 			</plugin>
 		</plugins>
 	</build>
