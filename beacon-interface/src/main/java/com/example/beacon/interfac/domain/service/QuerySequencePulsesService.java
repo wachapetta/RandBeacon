@@ -58,11 +58,7 @@ public class QuerySequencePulsesService {
         int pageIndex = offset / limit;
         Pageable page = PageRequest.of(pageIndex,limit);
 
-        System.out.println("Antes da query");
-
         int countSkipList = pulsesRepository.countSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour);
-
-        System.out.println("Agora é query");
 
         sequence.addAll(pulsesRepository.getSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour,page));
 
