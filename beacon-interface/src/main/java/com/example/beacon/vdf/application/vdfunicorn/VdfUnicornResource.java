@@ -60,7 +60,11 @@ public class VdfUnicornResource {
                 return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
-        } catch (Exception e){
+        }
+        catch (RuntimeException e){
+            return ResourceResponseUtil.invalidCall();
+        }
+        catch (Exception e){
             return ResourceResponseUtil.internalError();
         }
     }
@@ -77,7 +81,7 @@ public class VdfUnicornResource {
             }
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
@@ -111,7 +115,7 @@ public class VdfUnicornResource {
             VdfUnicornEntity byTimeStamp = vdfUnicornRepository.findByTimeStamp(next.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
@@ -131,7 +135,7 @@ public class VdfUnicornResource {
             VdfUnicornEntity byTimeStamp = vdfUnicornRepository.findByTimeStamp(previous.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             e.printStackTrace();
@@ -154,7 +158,7 @@ public class VdfUnicornResource {
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
@@ -169,7 +173,10 @@ public class VdfUnicornResource {
                 return ResourceResponseUtil.badRequest();
             }
 
-        } catch (Exception e) {
+        }catch (RuntimeException e){
+            return ResourceResponseUtil.invalidCall();
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return ResourceResponseUtil.internalError();
         }

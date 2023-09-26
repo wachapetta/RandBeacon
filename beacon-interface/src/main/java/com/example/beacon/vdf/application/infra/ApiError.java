@@ -14,19 +14,11 @@ public class ApiError {
     private String message;
     private List<String> errors;
 
-    public ApiError(HttpStatus status, String message, List<String> errors) {
-        super();
-        this.httpStatus = status.value();
-        this.status = status;
-        this.message = status.getReasonPhrase();
-        this.errors = errors;
-    }
-
     public ApiError(HttpStatus status, String message, String error) {
         super();
         this.httpStatus = status.value();
         this.status = status;
-        this.message = status.getReasonPhrase();
+        this.message =message;
         errors = Arrays.asList(error);
     }
 

@@ -55,9 +55,10 @@ public class SequenceOfPulsesResource {
         } catch (DateTimeParseException e){
             return ResourceResponseUtil.invalidCall();
         }
-        catch (BadRequestException e){
-            return ResourceResponseUtil.notImplemented();
-        } catch (Exception e){
+        catch (RuntimeException e){
+            return ResourceResponseUtil.invalidCall();
+        }
+        catch (Exception e){
             e.printStackTrace();
             return ResourceResponseUtil.internalError();
         }

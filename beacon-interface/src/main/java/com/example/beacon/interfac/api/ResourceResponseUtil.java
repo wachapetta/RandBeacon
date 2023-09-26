@@ -10,7 +10,7 @@ public abstract class ResourceResponseUtil {
 
     public static ResponseEntity createErrorResponse(HttpStatus status, String message){
         ApiError apiError = new ApiError(
-                status, status.getReasonPhrase(), message);
+                status, message, status.getReasonPhrase());
         HttpHeaders  headers= new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<Object>(apiError, headers, apiError.getStatus());

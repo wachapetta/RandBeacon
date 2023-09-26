@@ -36,7 +36,11 @@ public class CombinationResource {
                 return ResourceResponseUtil.pulseNotAvailable();
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
-        } catch (Exception e){
+        }
+        catch (RuntimeException e){
+            return ResourceResponseUtil.invalidCall();
+        }
+        catch (Exception e){
             return ResourceResponseUtil.internalError();
         }
     }
@@ -53,8 +57,9 @@ public class CombinationResource {
             }
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
+
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
         }
@@ -88,7 +93,7 @@ public class CombinationResource {
             CombinationEntity byTimeStamp = combinationRepository.findByTimeStamp(next.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
@@ -108,7 +113,7 @@ public class CombinationResource {
             CombinationEntity byTimeStamp = combinationRepository.findByTimeStamp(previous.getTimeStamp());
             return new ResponseEntity(convertToDto(byTimeStamp), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
@@ -130,7 +135,7 @@ public class CombinationResource {
             }
             return new ResponseEntity(convertToDto(byPulseIndex), HttpStatus.OK);
 
-        } catch (DateTimeParseException e){
+        } catch (RuntimeException e){
             return ResourceResponseUtil.invalidCall();
         } catch (Exception e){
             return ResourceResponseUtil.internalError();
