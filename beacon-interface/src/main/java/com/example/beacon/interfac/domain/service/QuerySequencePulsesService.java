@@ -68,11 +68,17 @@ public class QuerySequencePulsesService {
 
         String version = env.getProperty("beacon.url.version");
         String first = env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli();
-        String previous=countSkipList<limit || pageIndex==0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ (pageIndex-1)*limit +"&limit="+limit;
-        String next= pageIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ (pageIndex+1)*limit +"&limit="+limit;
+
+
+        int previousIndex = pageIndex - 1;
+        int nextIndex = pageIndex + 1;
 
         int lastPage = (int) Math.ceil(countSkipList / limit);
-        String last= env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ lastPage +"&limit="+limit;
+
+        String previous=countSkipList<limit || previousIndex<0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ previousIndex * limit +"&limit="+limit;
+        String next= nextIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ nextIndex * limit +"&limit="+limit;
+
+        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ lastPage +"&limit="+limit;
 
         Map<String,String> links = new LinkedHashMap<String,String>();
         links.put("first", first);

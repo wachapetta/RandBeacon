@@ -22,11 +22,7 @@ public class VdfQueueConsumer {
 
     private final CombinationService combinationService;
 
-    private final VdfUnicornService vdfUnicornService;
-
     private final SeedLocalPrecommitment seedLocalPrecommitmentCombination;
-
-    private final SeedLocalPrecommitmentUnicorn seedLocalPrecommitmentUnicorn;
 
     private final Environment env;
 
@@ -35,9 +31,7 @@ public class VdfQueueConsumer {
     @Autowired
     public VdfQueueConsumer(CombinationService combinationService, VdfUnicornService vdfUnicornService, SeedLocalPrecommitment seedLocalPrecommitmentCombination, SeedLocalPrecommitmentUnicorn seedLocalPrecommitmentUnicorn, Environment env) {
         this.combinationService = combinationService;
-        this.vdfUnicornService = vdfUnicornService;
         this.seedLocalPrecommitmentCombination = seedLocalPrecommitmentCombination;
-        this.seedLocalPrecommitmentUnicorn = seedLocalPrecommitmentUnicorn;
         this.env = env;
     }
 

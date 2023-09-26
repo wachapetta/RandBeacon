@@ -48,11 +48,11 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
         boolean threeTimesADay = (minute == 59 && (hour == 7 || hour == 15 || hour == 23)) || (minute <= 1) && (hour == 8 || hour == 14 || hour == 00);
 
-        log.debug("getting anu seed at {}?: {}",now, threeTimesADay);
+        log.info("getting anu seed at {}?: {}",now, threeTimesADay);
 
         if(threeTimesADay){
 
-            log.debug("getting anu seed at {}",now);
+            log.info("getting anu seed at {}",now);
 
             try{
                 ResponseEntity<AnuQRNGRemoteDto>  response =restTemplate.exchange("https://api.quantumnumbers.anu.edu.au?length=5&type=hex16&size=8", HttpMethod.GET, entity, AnuQRNGRemoteDto.class);
