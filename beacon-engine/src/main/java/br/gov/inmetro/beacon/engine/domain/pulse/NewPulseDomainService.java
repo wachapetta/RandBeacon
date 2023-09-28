@@ -14,19 +14,28 @@ import br.gov.inmetro.beacon.engine.infra.alerts.ISendAlert;
 import br.gov.inmetro.beacon.engine.queue.BeaconVdfQueueSender;
 import br.gov.inmetro.beacon.engine.queue.EntropyDto;
 import br.gov.inmetro.beacon.engine.queue.PrecommitmentQueueDto;
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CriptoUtilService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static br.gov.inmetro.beacon.engine.infra.util.DateUtil.getTimeStampFormated;
 
@@ -40,6 +49,8 @@ public class NewPulseDomainService {
     private final EntropyRepository entropyRepository;
 
     private final CombinationErrors combinationErrorsRepository;
+    private final boolean isSend;
+    private final long pulseDelay;
 
     private List<EntropyDto> regularNoises = new ArrayList<>();
 
@@ -60,6 +71,10 @@ public class NewPulseDomainService {
 
     private static final Logger logger = LoggerFactory.getLogger(NewPulseDomainService.class);
 
+    private final String numberOfSources;
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
 
     @Autowired
     public NewPulseDomainService(Environment env, PulsesRepository pulsesRepository, EntropyRepository entropyRepository,
@@ -73,26 +88,29 @@ public class NewPulseDomainService {
         this.beaconVdfQueueSender = beaconVdfQueueSender;
         this.iSendAlert = iSendAlert;
         this.activeChainService = activeChainService;
+        this.numberOfSources = env.getProperty("beacon.number-of-entropy-sources");
+        this.isSend = Boolean.parseBoolean(this.env.getProperty("beacon.vdf.combination.send.precom-to-queue"));
+        this.pulseDelay = Long.parseLong(this.env.getProperty("beacon.pulse.release.delay"));
     }
 
 
     private static boolean endOfChainPublished = false;
 
     @Transactional
+    @TimingPerformanceAspect
     public void begin(List<EntropyDto> regularNoises) {
 
         boolean hasActiveChain = activeChainService.hasActiveChain();
         logger.warn("is there a chain active? "+hasActiveChain);
-        logger.warn("is the chain ended? "+endOfChainPublished);
+        logger.warn("was the chain ended? "+endOfChainPublished);
         if(hasActiveChain || !endOfChainPublished){
             try {
                 this.regularNoises = regularNoises;
 
                 this.currentChain = ChainDomainService.getActiveChain();
                 this.lastPulseEntity = pulsesRepository.last(currentChain.getChainIndex());
-                String property = env.getProperty("beacon.number-of-entropy-sources");
 
-                combinar(currentChain.getChainIndex(), property);
+                combinar(currentChain.getChainIndex(), numberOfSources);
                 processarAndPersistir();
                 cleanDiscardedNumbers();
 
@@ -122,7 +140,6 @@ public class NewPulseDomainService {
         }
         //
     }
-
     private void processarAndPersistir() throws Exception {
         if (combineDomainResult.getLocalRandomValueDtos().size() < 2){
             return;
@@ -169,6 +186,7 @@ public class NewPulseDomainService {
 
     }
 
+    @TimingPerformanceAspect
     private Pulse getRegularPulse(Pulse previous, LocalRandomValueDto current, LocalRandomValueDto next) throws Exception {
         List<ListValue> list = new ArrayList<>();
         list.add(ListValue.getOneValue(previous.getOutputValue(),
@@ -263,8 +281,6 @@ public class NewPulseDomainService {
 
     @Transactional
     protected void persistOnePulse(Pulse pulse) throws InterruptedException {
-        sendPulseForCombinationQueue(pulse);
-
         Optional<PulseEntity> byChainAndTimestamp = pulsesRepository.findByChainAndTimestamp(currentChain.getChainIndex(), pulse.getTimeStamp());
 
         if (!byChainAndTimestamp.isPresent()){
@@ -272,7 +288,25 @@ public class NewPulseDomainService {
             combinationErrorsRepository.persist(combineDomainResult.getCombineErrorList());
             entropyRepository.deleteByTimeStamp(pulse.getTimeStamp());
 
-            logger.warn("Pulse released:" + pulse.getTimeStamp());
+            Instant now = Instant.now();
+            logger.warn("Pulse released:" + pulse.getTimeStamp()+":"+ now.toEpochMilli());
+
+            String minutes = env.getProperty("beacon.vdf.combination.send.minutes");
+            String[] split = minutes.split(",");
+            List<Integer> values = new ArrayList<Integer>();
+
+            for (String s : split) {
+                values.add(Integer.parseInt(s));
+            }
+
+            if(values.contains(now.atZone(ZoneOffset.UTC).getMinute())){
+                executor.submit(() -> {
+                            sendPulseForCombinationQueue(pulse);
+                            return 0;
+                        }
+                );
+            }
+
 
             if(!activeChainService.hasActiveChain()) {
                 NewPulseDomainService.endOfChainPublished = true;
@@ -286,23 +320,12 @@ public class NewPulseDomainService {
 
     }
 
+    @Async
     private void sendPulseForCombinationQueue(Pulse pulse) throws InterruptedException{
-        boolean isSend = Boolean.parseBoolean(env.getProperty("beacon.vdf.combination.send.precom-to-queue"));
-        long pulseDelay = Long.parseLong(env.getProperty("beacon.pulse.release.delay"));
 
         if (isSend){
-            String minutes = env.getProperty("beacon.vdf.combination.send.minutes");
-            String[] split = minutes.split(",");
-
-            Integer minute = ZonedDateTime.now().getMinute();
-
-            for (String s : split) {
-                if (s.equalsIgnoreCase(minute.toString())){
-                    beaconVdfQueueSender.sendCombination(new PrecommitmentQueueDto(getTimeStampFormated(pulse.getTimeStamp()), pulse.getPrecommitmentValue(), pulse.getUri()));
-                    Thread.sleep(pulseDelay);
-                }
-            }
-
+            beaconVdfQueueSender.sendCombination(new PrecommitmentQueueDto(getTimeStampFormated(pulse.getTimeStamp()), pulse.getPrecommitmentValue(), pulse.getUri()));
+            logger.warn("sended to combination");
         }
     }
 

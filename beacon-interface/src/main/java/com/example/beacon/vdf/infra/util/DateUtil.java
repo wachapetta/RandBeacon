@@ -21,7 +21,7 @@ public class DateUtil {
     }
 
     public static ZonedDateTime longToLocalDateTime(String data){
-        Long millis = new Long(data);
+        Long millis = Long.parseLong(data);
         if (data.length() == 10){
             millis = millis*1000;
         }

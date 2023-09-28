@@ -2,6 +2,7 @@ package br.gov.inmetro.beacon.engine.domain.pulse;
 
 import br.gov.inmetro.beacon.engine.domain.chain.ChainValueObject;
 import br.gov.inmetro.beacon.engine.infra.PulseEntity;
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CipherSuiteBuilder;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.ICipherSuite;
 import lombok.Getter;
@@ -171,6 +172,7 @@ public class Pulse {
                     precommitmentValue, statusCode, signatureValue, outputValue);
         }
 
+        @TimingPerformanceAspect
         private void calcSignAndOutputValue() {
             try {
                 ByteArrayOutputStream byteArrayOutputStream =  byteSerializeSignatureInput();

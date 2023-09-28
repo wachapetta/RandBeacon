@@ -1,5 +1,6 @@
 package com.example.beacon.interfac.api;
 
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import com.example.beacon.interfac.api.dto.PulseDto;
 import com.example.beacon.interfac.domain.service.QuerySinglePulsesService;
 import com.example.beacon.vdf.infra.util.DateUtil;
@@ -104,6 +105,7 @@ public class SinglePulseResource {
 
     @GetMapping(value = {"","/"})
     @ResponseBody
+    @TimingPerformanceAspect
     public ResponseEntity get(@RequestParam Map<String,String> allParams){
 
         if(allParams.containsKey("timeGT")){

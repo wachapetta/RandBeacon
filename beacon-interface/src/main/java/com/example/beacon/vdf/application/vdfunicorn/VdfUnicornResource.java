@@ -42,8 +42,12 @@ public class VdfUnicornResource {
             UnicornCurrentDto dto = vdfUnicornService.getUnicornState();
 
             return new ResponseEntity(dto, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (RuntimeException r){
+            return ResourceResponseUtil.badRequest();
+        }
+        catch (Exception e){
+            return ResourceResponseUtil.internalError();
         }
     }
 

@@ -2,6 +2,7 @@ package br.gov.inmetro.beacon.engine.queue;
 
 import br.gov.inmetro.beacon.engine.domain.repository.EntropyRepository;
 import br.gov.inmetro.beacon.engine.infra.EntropyEntity;
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ public class BeaconConsumer {
         this.entropyRepository = entropyRepository;
     }
 
+    @TimingPerformanceAspect
     @RabbitListener(queues = {"pulses_regular_queue"})
     public void receiveRegular(EntropyDto entropyDto) {
         saveEntity(entropyDto);
