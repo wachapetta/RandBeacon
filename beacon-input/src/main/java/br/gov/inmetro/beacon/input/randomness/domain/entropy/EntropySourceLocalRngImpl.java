@@ -1,5 +1,6 @@
 package br.gov.inmetro.beacon.input.randomness.domain.entropy;
 
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
@@ -20,6 +21,7 @@ class EntropySourceLocalRngImpl implements IEntropySource {
         this.env = env;
     }
 
+    @TimingPerformanceAspect
     @Override
     public EntropySourceDto getNoise512Bits() throws Exception {
         byte[] bytes = new byte[64];

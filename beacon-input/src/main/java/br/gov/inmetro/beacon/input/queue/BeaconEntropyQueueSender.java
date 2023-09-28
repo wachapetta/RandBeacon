@@ -1,6 +1,7 @@
 package br.gov.inmetro.beacon.input.queue;
 
 import br.gov.inmetro.beacon.input.randomness.domain.EntropyDto;
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class BeaconEntropyQueueSender {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    @TimingPerformanceAspect
     public void sendRegular(EntropyDto noiseDto) {
         rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY_REGULAR, noiseDto);
     }

@@ -34,7 +34,7 @@ public class BeaconGetNewNumberQueueScheduling {
         this.entropyRepository = entropyService;
     }
 
-    @Scheduled(cron = "50 * * * * *")
+    @Scheduled(cron = "59 * * * * *")
     public void runRegular() throws Exception {
         EntropyDto noiseDto = entropyAppService.getNoise512Bits();
         Entropy saved = entropyRepository.save(noiseDto);
@@ -50,7 +50,7 @@ public class BeaconGetNewNumberQueueScheduling {
 
     }
 
-    @Scheduled(cron = "51 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void runSync() {
         List<EntropyDto> notSentDto = entropyRepository.getNotSentDto();
 

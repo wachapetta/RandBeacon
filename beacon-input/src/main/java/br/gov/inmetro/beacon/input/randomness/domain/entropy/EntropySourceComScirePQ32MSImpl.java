@@ -1,5 +1,6 @@
 package br.gov.inmetro.beacon.input.randomness.domain.entropy;
 
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ class EntropySourceComScirePQ32MSImpl implements IEntropySource {
 
     private static final Logger logger = LoggerFactory.getLogger(EntropySourceComScirePQ32MSImpl.class);
 
+    @TimingPerformanceAspect
     @Override
     public EntropySourceDto getNoise512Bits() throws NoiseSourceReadException {
         String s;
