@@ -217,7 +217,7 @@ public class VdfUnicornService {
         String output = cipherSuite.getDigest(baos.toByteArray());
         unicornEntity.setOutputValue(output);
 
-        vdfUnicornRepository.saveAndFlush(unicornEntity);
+        vdfUnicornRepository.save(unicornEntity);
     }
 
 }

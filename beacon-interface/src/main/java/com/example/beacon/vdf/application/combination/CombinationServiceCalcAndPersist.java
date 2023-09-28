@@ -114,7 +114,7 @@ public class CombinationServiceCalcAndPersist {
         String output = cipherSuite.getDigest(baos.toByteArray());
         combinationEntity.setOutputValue(output);
 
-        combinationRepository.saveAndFlush(combinationEntity);
+        combinationRepository.save(combinationEntity);
 
         CombinationResultDto combinationResultDto = new CombinationResultDto(combinationEntity.getTimeStamp().toString(), combinationEntity.getOutputValue(), combinationEntity.getUri());
         sendToUnicorn(combinationResultDto);
