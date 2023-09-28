@@ -57,7 +57,7 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 			<version>1.18.28</version>
-			<scope>provided</scope>
+			<!--<scope>provided</scope>-->
 		</dependency>
 
 		<dependency>
@@ -69,6 +69,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>br.gov.inmetro.beacon.library</groupId>
+			<artifactId>beacon-libs</artifactId>
+			<version>1.0.0.RELEASE</version>
 		</dependency>
 	</dependencies>
 
