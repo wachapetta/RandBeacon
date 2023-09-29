@@ -1,11 +1,11 @@
 package com.example.beacon.vdf.infra.util;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import groovyjarjarantlr4.v4.parse.ATNBuilder;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 public class DateUtil {
 
@@ -44,29 +44,20 @@ public class DateUtil {
         return ChronoUnit.MINUTES.between(dateTimeActual, nextRun);
     }
 
-    public static ZonedDateTime getTimestampOfNextRun(ZonedDateTime dateTime){
+    public static ZonedDateTime getTimestampOfNextRun(ZonedDateTime dateTime, List<Integer> startsAtMinutes){
 
-        ZonedDateTime zonedDateTime30 = dateTime.withMinute(30);
-        ZonedDateTime zonedDateTimeNextHour = dateTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
+        startsAtMinutes.replaceAll(integer -> integer ==0 ? integer=60:integer);
 
-        long between1 = ChronoUnit.MINUTES.between(dateTime, zonedDateTime30);
-        long between2 = ChronoUnit.MINUTES.between(dateTime, zonedDateTimeNextHour);
+        int minute = dateTime.getMinute();
 
-        ZonedDateTime doReturn = null;
+        int next =0;
 
-        if (between1 < 0){
-            return zonedDateTimeNextHour.truncatedTo(ChronoUnit.MINUTES);
-        }
+        startsAtMinutes.removeIf(integer -> integer <= minute);
+        startsAtMinutes.sort(Integer::compareTo);
+        next = startsAtMinutes.get(0);
 
-        if (between1 < between2){
-            doReturn = zonedDateTime30;
-        }
 
-        if (between1 > between2){
-            doReturn = zonedDateTimeNextHour;
-        }
-
-        return doReturn.truncatedTo(ChronoUnit.MINUTES);
+        return dateTime.plus(Duration.ofMinutes(next-minute)).withSecond(0).withNano(0);
     }
 
 }
