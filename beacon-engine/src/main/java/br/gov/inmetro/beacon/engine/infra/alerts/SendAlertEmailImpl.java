@@ -28,6 +28,8 @@ public class SendAlertEmailImpl implements ISendAlert {
 
     private ZonedDateTime dateTimeLastAlert;
 
+    private final long retriesNumber;
+
     private static final Logger logger = LoggerFactory.getLogger(SendAlertEmailImpl.class);
 
     @Autowired
@@ -35,7 +37,8 @@ public class SendAlertEmailImpl implements ISendAlert {
         this.javaMailSender = javaMailSender;
         this.env = env;
         this.dateTimeLastAlert = null;
-        this.enabled = env.getProperty("beacon.mail.enabled")!=null;
+        this.enabled = env.getProperty("beacon.send.alerts.by.email").equals("true");
+        this.retriesNumber = Long.parseLong(env.getProperty("beacon.mail.resend.alert-in-pulses"));
     }
 
     @Override
@@ -85,16 +88,13 @@ public class SendAlertEmailImpl implements ISendAlert {
     }
 
     public void send(String subject, StringBuilder body, boolean sendImmediately){
-        if (Boolean.parseBoolean(env.getProperty("beacon.send.alerts.by.email"))) {
+        if (!enabled)  return;
 
-            if (!enabled)  return;
-
-            if (sendImmediately){
-                sendList(subject, body.toString());
-            } else {
-                if (sendAlertAgain()){
+        if (sendImmediately){
+            sendList(subject, body.toString());
+        } else {
+            if (sendAlertAgain()){
                     sendList(subject, body.toString());
-                }
             }
         }
     }
@@ -134,15 +134,16 @@ public class SendAlertEmailImpl implements ISendAlert {
     }
 
     private boolean sendAlertAgain(){
+
+        if (!enabled)  return false;
+
         if (dateTimeLastAlert == null){
             dateTimeLastAlert = getCurrentTrucatedZonedDateTime();
             return true;
         }
 
-        long property = Long.parseLong(env.getProperty("beacon.mail.resend.alert-in-pulses"));
-
         long between = ChronoUnit.MINUTES.between(dateTimeLastAlert, getCurrentTrucatedZonedDateTime());
-        if (between >= property){
+        if (between >= retriesNumber){
             dateTimeLastAlert = getCurrentTrucatedZonedDateTime();
             return true;
         } else {
