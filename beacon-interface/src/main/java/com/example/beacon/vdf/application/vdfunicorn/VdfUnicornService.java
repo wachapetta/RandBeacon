@@ -42,7 +42,7 @@ public class VdfUnicornService {
 
     private ZonedDateTime timestamp;
 
-    private List<SeedUnicordCombinationVo> seedListUnicordCombination;
+    private final List<SeedUnicordCombinationVo> seedListUnicordCombination;
 
     private final ICipherSuite cipherSuite;
 
@@ -169,7 +169,6 @@ public class VdfUnicornService {
         long minutesForNextRun = DateUtil.getMinutesForNextRun(ZonedDateTime.now(), nextRun);
         unicornCurrentDto.setNextRunInMinutes(minutesForNextRun);
 
-        DateUtil.getTimestampOfNextRun(ZonedDateTime.now(),this.startList).plus(9, ChronoUnit.MINUTES);
         unicornCurrentDto.setEnd(getTimeStampFormated(DateUtil.getTimestampOfNextRun(ZonedDateTime.now(),this.startList).plus(9, ChronoUnit.MINUTES)));
 
         this.seedListUnicordCombination.forEach(s ->

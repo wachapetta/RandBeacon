@@ -21,8 +21,7 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
     private static final String DESCRIPTION = "ANU Quantum's random bytes";
 
-    private static boolean sended = false;
-    private Environment env;
+    private final Environment env;
 
     private final Logger log = LoggerFactory.getLogger(SeedAnuQuantumRNG.class);
 
@@ -46,7 +45,7 @@ public class SeedAnuQuantumRNG implements SeedInterface {
         int hour = now.atZone(ZoneOffset.UTC).getHour();
         int minute = now.atZone(ZoneOffset.UTC).getMinute();
 
-        boolean threeTimesADay = (minute == 59 && (hour == 7 || hour == 15 || hour == 23)) || (minute <= 1) && (hour == 8 || hour == 14 || hour == 00);
+        boolean threeTimesADay = (minute == 59 && (hour == 7 || hour == 15 || hour == 23)) || (minute <= 1) && (hour == 8 || hour == 14 || hour == 0);
 
         log.info("getting anu seed at {}?: {}",now, threeTimesADay);
 
@@ -56,9 +55,12 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
             try{
                 ResponseEntity<AnuQRNGRemoteDto>  response =restTemplate.exchange("https://api.quantumnumbers.anu.edu.au?length=5&type=hex16&size=8", HttpMethod.GET, entity, AnuQRNGRemoteDto.class);
-                sended = true;
+
                 AnuQRNGRemoteDto remoteDto = response.getBody();
                 StringBuilder builder = new StringBuilder();
+
+                if(remoteDto == null) return null;
+
                 remoteDto.getData().forEach(str-> builder.append(str));
 
                 return new SeedSourceDto(now.toString(), "https://quantumnumbers.anu.edu.au/",

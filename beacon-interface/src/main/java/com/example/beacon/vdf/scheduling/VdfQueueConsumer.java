@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +33,7 @@ public class VdfQueueConsumer {
     private static final Logger logger = LoggerFactory.getLogger(VdfQueueConsumer.class);
 
     @Autowired
-    public VdfQueueConsumer(CombinationService combinationService, VdfUnicornService vdfUnicornService, SeedLocalPrecommitment seedLocalPrecommitmentCombination, SeedLocalPrecommitmentUnicorn seedLocalPrecommitmentUnicorn, Environment env) {
+    public VdfQueueConsumer(CombinationService combinationService, SeedLocalPrecommitment seedLocalPrecommitmentCombination, Environment env) {
         this.combinationService = combinationService;
         this.seedLocalPrecommitmentCombination = seedLocalPrecommitmentCombination;
         this.env = env;

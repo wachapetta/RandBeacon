@@ -3,10 +3,8 @@ package com.example.beacon.vdf.infra.util;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -14,8 +12,8 @@ import static org.junit.Assert.assertEquals;
 public class DateUtilTest {
 
 
-    List<Integer> each30min = new ArrayList();
-    List<Integer> each2min = new ArrayList();
+    List<Integer> each30min = new ArrayList<Integer>();
+    List<Integer> each2min = new ArrayList<Integer>();
 
     @Before
     public void before(){

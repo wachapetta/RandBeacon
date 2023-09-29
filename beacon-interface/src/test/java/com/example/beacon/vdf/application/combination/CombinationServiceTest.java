@@ -2,19 +2,12 @@ package com.example.beacon.vdf.application.combination;
 
 import com.example.beacon.vdf.application.combination.dto.VdfPulseDtoPost;
 import com.example.beacon.vdf.application.vdfunicorn.SeedPostDto;
-import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
-
-import static com.example.beacon.vdf.infra.util.DateUtil.getTimeStampFormated;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -31,10 +24,6 @@ public class CombinationServiceTest {
         vdfPulseDto.setSeed("100EFBEB29F458E06BF267EBB5CFCE768F9980317555E8C716B7CBE6C2BC07BE4983121D8DC0384AD6EF6ED4FC7C8EFDCB90509649AF3126A621368FA9073D12");
         vdfPulseDto.setCipherSuite(0);
         vdfPulseDto.setOriginEnum(OriginEnum.NIST);
-
-        SeedPostDto seedPostDto = new SeedPostDto("100EFBEB29F458E06BF267EBB5CFCE768F9980317555E8C716B7CBE6C2BC07BE4983121D8DC0384AD6EF6ED4FC7C8EFDCB90509649AF3126A621368FA9073D12",
-                "description",
-                "uri");
 
         combinationService.run();
 

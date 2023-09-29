@@ -145,7 +145,7 @@ public class CombinationCalcAndPersistService {
 
         Long maxId = combinationRepository.findMaxId();
 
-        if(maxId == null) maxId =0l;
+        if(maxId == null) maxId = 0L;
 
         Optional<CombinationEntity> previewsPulse = combinationRepository.findById(maxId);
 

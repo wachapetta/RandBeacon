@@ -27,8 +27,6 @@ import static java.lang.Thread.sleep;
 @Service
 public class CombinationService {
 
-    private final List<SeedPostDto> seedList;
-
     private final ICipherSuite cipherSuite;
 
     private final SeedBuilder seedBuilder;
@@ -48,7 +46,6 @@ public class CombinationService {
         this.seedBuilder = seedBuilder;
         this.combinationCalcAndPersistService = combinationCalcAndPersistService;
         this.cipherSuite = CipherSuiteBuilder.build(0);
-        this.seedList = new ArrayList<>();
         this.iterations = Integer.parseInt(env.getProperty("beacon.combination.iterations"));
         this.countLimit = Integer.parseInt(env.getProperty("beacon.combination.sources.seconds-to-retry"));
     }
@@ -106,9 +103,7 @@ public class CombinationService {
 
         final BigInteger x = new BigInteger(seedUnicordCombinationVos.get(seedUnicordCombinationVos.size() - 1).getCumulativeHash(), 16);
 
-
         runAndPersist(x);
-        seedList.clear();
     }
 
 
@@ -116,7 +111,7 @@ public class CombinationService {
         try {
             sleep(200); // one second
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.warn("interrupted");
         }
         return seedBuilder.getPreDefSeedCombination();
     }
