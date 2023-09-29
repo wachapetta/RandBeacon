@@ -1,5 +1,6 @@
 package com.example.beacon.vdf.application.combination;
 
+import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.ICipherSuite;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CipherSuiteBuilder;
 import com.example.beacon.vdf.application.combination.dto.SeedUnicordCombinationVo;
@@ -39,6 +40,10 @@ public class CombinationService {
 
     private static final Logger logger = LoggerFactory.getLogger(CombinationService.class);
 
+    private final int iterations;
+
+    private final int countLimit;
+
     @Autowired
     public CombinationService(Environment env, SeedBuilder seedBuilder, CombinationServiceCalcAndPersist combinationServiceCalcAndPersist) {
         this.env = env;
@@ -46,9 +51,12 @@ public class CombinationService {
         this.combinationServiceCalcAndPersist = combinationServiceCalcAndPersist;
         this.cipherSuite = CipherSuiteBuilder.build(0);
         this.seedList = new ArrayList<>();
+        this.iterations = Integer.parseInt(env.getProperty("beacon.combination.iterations"));
+        this.countLimit = Integer.parseInt(env.getProperty("beacon.combination.sources.seconds-to-retry"));
     }
 
-    public void run(String timeStamp) throws Exception {
+    @TimingPerformanceAspect
+    public void run() throws Exception {
         logger.warn("Start run:");
 
         List<SeedSourceDto> preDefSeedCombination = seedBuilder.getPreDefSeedCombination();
@@ -62,7 +70,7 @@ public class CombinationService {
                 .collect(Collectors.toList());
 
         if (!delayedPulseList.isEmpty()){
-            final int countLimit = Integer.parseInt(env.getProperty("beacon.combination.sources.seconds-to-retry"));
+
             for (int i = 0; i < countLimit; i++) {
                 List<SeedSourceDto> newList = getDelayedPulses();
 
@@ -100,23 +108,25 @@ public class CombinationService {
 
         final BigInteger x = new BigInteger(seedUnicordCombinationVos.get(seedUnicordCombinationVos.size() - 1).getCumulativeHash(), 16);
 
+
+        runAndPersist(x);
         seedList.clear();
-        runAndPersist(x, timeStamp);
     }
 
 
     private List<SeedSourceDto> getDelayedPulses(){
         try {
-            sleep(1000); // one second
+            sleep(200); // one second
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return seedBuilder.getPreDefSeedCombination();
     }
 
-    private void runAndPersist(BigInteger x, String timeStamp) throws Exception {
-        combinationServiceCalcAndPersist.run(timeStamp, seedUnicordCombinationVos, x);
-        logger.warn("Async...");
+    private void runAndPersist(BigInteger x) throws Exception {
+
+        BigInteger y = combinationServiceCalcAndPersist.run( x, iterations);
+        combinationServiceCalcAndPersist.persist(seedUnicordCombinationVos, iterations, x, y);
     }
 
 }

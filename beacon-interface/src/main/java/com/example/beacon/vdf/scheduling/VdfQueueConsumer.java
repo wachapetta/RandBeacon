@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Component
-@Transactional
+//@Transactional
+@ConditionalOnProperty(
+        value="beacon.combination.enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 public class VdfQueueConsumer {
 
     private final CombinationService combinationService;
@@ -45,7 +50,7 @@ public class VdfQueueConsumer {
             logger.warn("PrecommitmentQueueDto received:  " + dto);
             seedLocalPrecommitmentCombination.setPrecommitment(dto);
             logger.warn("Start combination: " + ZonedDateTime.now());
-            combinationService.run(dto.getTimeStamp());
+            combinationService.run();
             logger.warn(String.format("combination released: %s - iterations: %s",  dto.getTimeStamp(), env.getProperty("beacon.combination.iterations")));
         } else {
             logger.warn("Discarded:" + dto);

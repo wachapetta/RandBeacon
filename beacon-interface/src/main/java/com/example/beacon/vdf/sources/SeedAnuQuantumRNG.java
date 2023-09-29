@@ -64,8 +64,7 @@ public class SeedAnuQuantumRNG implements SeedInterface {
                 return new SeedSourceDto(now.toString(), "https://quantumnumbers.anu.edu.au/",
                         builder.toString() , DESCRIPTION, SeedAnuQuantumRNG.class);
             }catch (Exception e){
-                log.warn(e.getMessage());
-                log.debug(e.getStackTrace().toString());
+                log.warn("Anu quantum service not available");
             }
         }
         return null;

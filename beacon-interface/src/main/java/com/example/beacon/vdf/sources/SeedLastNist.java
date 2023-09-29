@@ -1,6 +1,8 @@
 package com.example.beacon.vdf.sources;
 
 import com.example.beacon.vdf.repository.BeaconRemoteDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -11,6 +13,8 @@ public class SeedLastNist implements SeedInterface {
     private final RestTemplate restTemplate;
 
     private static final String DESCRIPTION = "Last precommitment NIST";
+
+    private final Logger log = LoggerFactory.getLogger(SeedLastNist.class);
 
     @Autowired
     public SeedLastNist(RestTemplate restTemplate) {
@@ -26,7 +30,7 @@ public class SeedLastNist implements SeedInterface {
             return new SeedSourceDto(lastPulse.getTimeStamp(), lastPulse.getUri(), lastPulse.getPrecommitmentValue(),
                 DESCRIPTION, SeedLastNist.class);
         }catch (Exception e){
-            e.printStackTrace();
+            log.warn("Nist's beacon not available");
         }
         return null;
     }

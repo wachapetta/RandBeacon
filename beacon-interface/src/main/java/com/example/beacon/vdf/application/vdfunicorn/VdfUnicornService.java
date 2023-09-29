@@ -125,7 +125,7 @@ public class VdfUnicornService {
         return this.statusEnum.equals(StatusEnum.OPEN);
     }
 
-    @Async("threadPoolTaskExecutor")
+    //@Async("threadPoolTaskExecutor")
     protected void run() throws Exception {
         SeedUnicordCombinationVo last = this.seedListUnicordCombination.get(this.seedListUnicordCombination.size() - 1);
         final BigInteger x = new BigInteger(last.getCumulativeHash(), 16);

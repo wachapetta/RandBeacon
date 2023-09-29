@@ -15,22 +15,23 @@ import com.example.beacon.vdf.scheduling.CombinationResultDto;
 import com.example.beacon.vdf.sources.SeedBuilder;
 import com.example.beacon.vdf.sources.SeedCombinationResult;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+//import javax.persistence.PersistenceContext;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -38,10 +39,14 @@ public class CombinationServiceCalcAndPersist {
     private final CombinationRepository combinationRepository;
     private final String certificateId = "04c5dc3b40d25294c55f9bc2496fd4fe9340c1308cd073900014e6c214933c7f7737227fc5e4527298b9e95a67ad92e0310b37a77557a10518ced0ce1743e132";
     private final ICipherSuite cipherSuite;
-    private final SeedBuilder seedBuilder;
     private final VdfUnicornService vdfUnicornService;
     private final Environment env;
     private final SeedCombinationResult seedCombinationResult;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    //@PersistenceContext
+    //private EntityManager entityManager;
 
     @Autowired
     public CombinationServiceCalcAndPersist(CombinationRepository combinationRepository,
@@ -49,25 +54,25 @@ public class CombinationServiceCalcAndPersist {
                                             Environment env, SeedCombinationResult seedCombinationResult) {
         this.combinationRepository = combinationRepository;
         this.cipherSuite = CipherSuiteBuilder.build(0);
-        this.seedBuilder = seedBuilder;
         this.vdfUnicornService = vdfUnicornService;
         this.env = env;
         this.seedCombinationResult = seedCombinationResult;
     }
 
-    @Async("threadPoolTaskExecutor")
-    public void run(String timeStamp, List<SeedUnicordCombinationVo> seedUnicordCombinationVos, BigInteger x) throws Exception {
-        int iterations = Integer.parseInt(env.getProperty("beacon.combination.iterations"));
+    //@Async("threadPoolTaskExecutor")
+    public BigInteger run(BigInteger x, int iterations) throws Exception {
+
 
         log.warn("Start combination sloth");
         BigInteger y = VdfSloth.mod_op(x, iterations);
         log.warn("End combination sloth");
 
-        persist(timeStamp, seedUnicordCombinationVos, iterations, x, y);
+        return y;
     }
 
+
     @Transactional
-    protected void persist(String timeStamp, List<SeedUnicordCombinationVo> seedUnicordCombinationVos, int iterations, BigInteger x, BigInteger y) throws Exception {
+    protected void persist( List<SeedUnicordCombinationVo> seedUnicordCombinationVos, int iterations, BigInteger x, BigInteger y) throws Exception {
         Long maxPulseIndex = combinationRepository.findMaxPulseIndex();
         PrivateKey privateKey = CriptoUtilService.loadPrivateKeyPkcs1(env.getProperty("beacon.x509.privatekey"));
 
@@ -83,7 +88,7 @@ public class CombinationServiceCalcAndPersist {
         combinationEntity.setUri(uri);
         combinationEntity.setVersion("Version 1.0");
         combinationEntity.setPulseIndex(maxPulseIndex);
-        combinationEntity.setTimeStamp(ZonedDateTime.parse(timeStamp, DateTimeFormatter.ISO_DATE_TIME));
+        combinationEntity.setTimeStamp(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")).withSecond(0).withNano(0));
         combinationEntity.setCertificateId(this.certificateId);
         combinationEntity.setCipherSuite(0);
 
@@ -116,9 +121,15 @@ public class CombinationServiceCalcAndPersist {
 
         combinationRepository.save(combinationEntity);
 
-        CombinationResultDto combinationResultDto = new CombinationResultDto(combinationEntity.getTimeStamp().toString(), combinationEntity.getOutputValue(), combinationEntity.getUri());
-        sendToUnicorn(combinationResultDto);
+        //entityManager.flush();
+        //entityManager.clear();
 
+        executor.submit(() -> {
+            CombinationResultDto combinationResultDto = new CombinationResultDto(combinationEntity.getTimeStamp().toString(), combinationEntity.getOutputValue(), combinationEntity.getUri());
+            sendToUnicorn(combinationResultDto);
+                    return 0;
+                }
+        );
         log.warn("Stop run:");
     }
 
