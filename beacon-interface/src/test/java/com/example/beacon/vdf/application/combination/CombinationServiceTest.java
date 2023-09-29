@@ -36,7 +36,7 @@ public class CombinationServiceTest {
                 "description",
                 "uri");
 
-        combinationService.run(getTimeStampFormated(ZonedDateTime.now()));
+        combinationService.run();
 
         System.out.println("FIM");
     }
