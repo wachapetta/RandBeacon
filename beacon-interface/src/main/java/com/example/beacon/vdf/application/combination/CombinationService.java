@@ -5,6 +5,7 @@ import br.gov.inmetro.beacon.library.ciphersuite.suite0.ICipherSuite;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CipherSuiteBuilder;
 import com.example.beacon.vdf.application.combination.dto.SeedUnicordCombinationVo;
 import com.example.beacon.vdf.application.vdfunicorn.SeedPostDto;
+import com.example.beacon.vdf.infra.entity.CombinationEntity;
 import com.example.beacon.vdf.sources.SeedBuilder;
 import com.example.beacon.vdf.sources.SeedSourceDto;
 import org.slf4j.Logger;
@@ -26,8 +27,6 @@ import static java.lang.Thread.sleep;
 @Service
 public class CombinationService {
 
-    private final Environment env;
-
     private final List<SeedPostDto> seedList;
 
     private final ICipherSuite cipherSuite;
@@ -36,7 +35,7 @@ public class CombinationService {
 
     private List<SeedUnicordCombinationVo> seedUnicordCombinationVos = new ArrayList<>();
 
-    private final CombinationServiceCalcAndPersist combinationServiceCalcAndPersist;
+    private final CombinationCalcAndPersistService combinationCalcAndPersistService;
 
     private static final Logger logger = LoggerFactory.getLogger(CombinationService.class);
 
@@ -45,10 +44,9 @@ public class CombinationService {
     private final int countLimit;
 
     @Autowired
-    public CombinationService(Environment env, SeedBuilder seedBuilder, CombinationServiceCalcAndPersist combinationServiceCalcAndPersist) {
-        this.env = env;
+    public CombinationService(Environment env, SeedBuilder seedBuilder, CombinationCalcAndPersistService combinationCalcAndPersistService) {
         this.seedBuilder = seedBuilder;
-        this.combinationServiceCalcAndPersist = combinationServiceCalcAndPersist;
+        this.combinationCalcAndPersistService = combinationCalcAndPersistService;
         this.cipherSuite = CipherSuiteBuilder.build(0);
         this.seedList = new ArrayList<>();
         this.iterations = Integer.parseInt(env.getProperty("beacon.combination.iterations"));
@@ -125,8 +123,11 @@ public class CombinationService {
 
     private void runAndPersist(BigInteger x) throws Exception {
 
-        BigInteger y = combinationServiceCalcAndPersist.run( x, iterations);
-        combinationServiceCalcAndPersist.persist(seedUnicordCombinationVos, iterations, x, y);
+        BigInteger y = combinationCalcAndPersistService.run( x, iterations);
+
+        CombinationEntity combinationEntity = combinationCalcAndPersistService.createCombinationEntity(seedUnicordCombinationVos, iterations, x, y);
+
+        combinationCalcAndPersistService.save(combinationEntity);
     }
 
 }

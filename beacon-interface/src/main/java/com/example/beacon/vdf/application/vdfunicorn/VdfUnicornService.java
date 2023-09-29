@@ -19,9 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -54,12 +52,14 @@ public class VdfUnicornService {
 
     private final VdfUnicornRepository vdfUnicornRepository;
 
+    VdfUnicornPersistenceService persistenceService;
+
     private static final Logger logger = LoggerFactory.getLogger(VdfUnicornService.class);
 
     @Autowired
-    public VdfUnicornService(Environment environment, SeedBuilder seedBuilder, VdfUnicornRepository vdfUnicornRepository) {
+    public VdfUnicornService(Environment environment, SeedBuilder seedBuilder, VdfUnicornRepository vdfUnicornRepository, VdfUnicornPersistenceService persistenceService) {
 
-        List<String> tmp = Arrays.asList(environment.getProperty("beacon.unicorn.start.submission").split(","));
+        List<String> tmp = Arrays.asList(environment.getProperty("beacon.unicorn.start.submission").replace(" ","").replace("*","").split(","));
 
         this.env = environment;
         this.seedBuilder = seedBuilder;
@@ -72,6 +72,8 @@ public class VdfUnicornService {
         tmp.forEach(str-> startList.add(Integer.parseInt(str)));
 
         this.timestamp = getTimestampOfNextRun(ZonedDateTime.now(),startList);
+
+        this.persistenceService = persistenceService;
     }
 
     public void startTimeSlot() {
@@ -145,9 +147,10 @@ public class VdfUnicornService {
         BigInteger y = VdfSloth.mod_op(x, iterations);
         logger.warn("End unicorn sloth:");
 
+        this.statusEnum = StatusEnum.STOPPED;
+
         persist(y,x, iterations);
         seedListUnicordCombination.clear();
-        this.statusEnum = StatusEnum.STOPPED;
         this.timestamp = getTimestampOfNextRun(ZonedDateTime.now(), this.startList);
     }
 
@@ -178,7 +181,7 @@ public class VdfUnicornService {
         return unicornCurrentDto;
     }
 
-    @Transactional
+
     protected void persist(BigInteger y, BigInteger x, int iterations) throws Exception {
 
         Long maxPulseIndex = vdfUnicornRepository.findMaxId();
@@ -226,7 +229,8 @@ public class VdfUnicornService {
         String output = cipherSuite.getDigest(baos.toByteArray());
         unicornEntity.setOutputValue(output);
 
-        vdfUnicornRepository.save(unicornEntity);
+        this.persistenceService.save(unicornEntity);
+
     }
 
 }
