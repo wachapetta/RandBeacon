@@ -146,7 +146,7 @@ public class CombinationCalcAndPersistService {
             return;
         }
         seedCombinationResult.setCombinationResultDto(combinationResultDto);
-        vdfUnicornService.endTimeSlot();
+        vdfUnicornService.proceed();
 
     }
 

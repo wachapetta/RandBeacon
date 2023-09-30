@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.PrivateKey;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class VdfUnicornService {
 
     private StatusEnum statusEnum;
 
-    private ZonedDateTime timestamp;
+    private ZonedDateTime windowStart;
 
     private final List<SeedUnicordCombinationVo> seedListUnicordCombination;
 
@@ -72,7 +74,7 @@ public class VdfUnicornService {
         this.startList = new ArrayList<Integer>();
         tmp.forEach(str-> startList.add(Integer.parseInt(str)));
 
-        this.timestamp = getTimestampOfNextRun(ZonedDateTime.now(),startList);
+        this.windowStart = getTimestampOfNextRun(ZonedDateTime.now(),startList);
 
         this.persistenceService = persistenceService;
     }
@@ -80,7 +82,7 @@ public class VdfUnicornService {
     public void startTimeSlot() {
         this.seedListUnicordCombination.clear();
         this.statusEnum = StatusEnum.OPEN;
-        this.timestamp = getCurrentTrucatedZonedDateTime();
+        this.windowStart = getCurrentTrucatedZonedDateTime();
 
         List<SeedSourceDto> preDefinedSeeds = seedBuilder.getPreDefSeedUnicorn();
         preDefinedSeeds.forEach(dto -> {
@@ -89,7 +91,7 @@ public class VdfUnicornService {
                             dto.getDescription(),
                             dto.getUri()),
                             this.seedListUnicordCombination,
-                            timestamp));
+                            windowStart));
         });
     }
 
@@ -117,7 +119,14 @@ public class VdfUnicornService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public void endTimeSlot() throws Exception {
+    public void proceed() throws Exception {
+
+        //if the window started now, ignore the combination seed and wait the next seed
+        if(this.startList.contains(ZonedDateTime.now().getMinute())){
+            logger.warn("Ignoring combination pulse in the window start minute");
+            return;
+        }
+
         this.statusEnum = StatusEnum.RUNNING;
         List<SeedSourceDto> honestSeeds = seedBuilder.getHonestPartyUnicorn();
 
@@ -145,15 +154,17 @@ public class VdfUnicornService {
 
         int iterations = Integer.parseInt(env.getProperty("beacon.unicorn.iterations"));
 
+        this.statusEnum = StatusEnum.STOPPED;
+
         logger.warn("Start unicorn sloth:");
         BigInteger y = VdfSloth.mod_op(x, iterations);
         logger.warn("End unicorn sloth:");
 
-        this.statusEnum = StatusEnum.STOPPED;
+
 
         persist(y,x, iterations);
         seedListUnicordCombination.clear();
-        this.timestamp = getTimestampOfNextRun(ZonedDateTime.now(), this.startList);
+        this.windowStart = getTimestampOfNextRun(ZonedDateTime.now(), this.startList);
     }
 
     public UnicornCurrentDto getUnicornState(){
@@ -165,13 +176,13 @@ public class VdfUnicornService {
         }
 
         //TODO Verificar o horário
-        unicornCurrentDto.setStart(getTimeStampFormated(this.timestamp));
+        unicornCurrentDto.setStart(getTimeStampFormated(this.windowStart));
 
         ZonedDateTime nextRun = getTimestampOfNextRun(ZonedDateTime.now(),this.startList);
         long minutesForNextRun = DateUtil.getMinutesForNextRun(ZonedDateTime.now(), nextRun);
         unicornCurrentDto.setNextRunInMinutes(minutesForNextRun);
 
-        unicornCurrentDto.setEnd(getTimeStampFormated(DateUtil.getTimestampOfNextRun(ZonedDateTime.now(),this.startList).plus(9, ChronoUnit.MINUTES)));
+        unicornCurrentDto.setEnd(getTimeStampFormated(this.windowStart.plusMinutes(5).plusSeconds(5)));
 
         this.seedListUnicordCombination.forEach(s ->
                 unicornCurrentDto.addSeed(new VdfSeedDto(s.getSeed(),
@@ -199,7 +210,7 @@ public class VdfUnicornService {
         unicornEntity.setUri(uri);
         unicornEntity.setVersion("Version 1.0");
         unicornEntity.setPulseIndex(maxPulseIndex);
-        unicornEntity.setTimeStamp(this.timestamp.truncatedTo(ChronoUnit.MINUTES));
+        unicornEntity.setTimeStamp(ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         unicornEntity.setCertificateId(this.certificateId);
         unicornEntity.setCipherSuite(0);
         unicornEntity.setCombination(env.getProperty("vdf.combination").toUpperCase());

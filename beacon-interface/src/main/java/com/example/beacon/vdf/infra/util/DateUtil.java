@@ -3,6 +3,7 @@ package com.example.beacon.vdf.infra.util;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DateUtil {
@@ -44,15 +45,17 @@ public class DateUtil {
 
     public static ZonedDateTime getTimestampOfNextRun(ZonedDateTime dateTime, List<Integer> startsAtMinutes){
 
-        startsAtMinutes.replaceAll(integer -> integer ==0 ? integer=60:integer);
+        List<Integer> tmp = new ArrayList<Integer>();
+        tmp.addAll(startsAtMinutes);
+        tmp.replaceAll(integer -> integer ==0 ? integer=60:integer);
 
         int minute = dateTime.getMinute();
 
         int next =0;
 
-        startsAtMinutes.removeIf(integer -> integer <= minute);
-        startsAtMinutes.sort(Integer::compareTo);
-        next = startsAtMinutes.get(0);
+        tmp.removeIf(integer -> integer <= minute);
+        tmp.sort(Integer::compareTo);
+        next = tmp.get(0);
 
 
         return dateTime.plus(Duration.ofMinutes(next-minute)).withSecond(0).withNano(0);
