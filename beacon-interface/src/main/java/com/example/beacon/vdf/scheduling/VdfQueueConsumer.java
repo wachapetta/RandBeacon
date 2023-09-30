@@ -1,9 +1,7 @@
 package com.example.beacon.vdf.scheduling;
 
 import com.example.beacon.vdf.application.combination.CombinationService;
-import com.example.beacon.vdf.application.vdfunicorn.VdfUnicornService;
 import com.example.beacon.vdf.sources.SeedLocalPrecommitment;
-import com.example.beacon.vdf.sources.SeedLocalPrecommitmentUnicorn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -17,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Component
-//@Transactional
 @ConditionalOnProperty(
         value="beacon.combination.enabled",
         havingValue = "true",

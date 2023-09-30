@@ -1,7 +1,6 @@
 package com.example.beacon.vdf.sources;
 
 import com.example.beacon.vdf.scheduling.CombinationResultDto;
-import com.example.beacon.vdf.scheduling.PrecommitmentQueueDto;
 import org.springframework.stereotype.Component;
 
 @Component
