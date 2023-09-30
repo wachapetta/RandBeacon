@@ -4,9 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 @Component
 public class SeedBuilder {
@@ -18,22 +23,50 @@ public class SeedBuilder {
         this.context = context;
     }
 
+    public void getSeed(SeedInterface seed) {
+        synchronized (this) {
+
+        }
+    }
+
 //     Beacon Combination
-    public List<SeedSourceDto> getPreDefSeedCombination(){
+    public List<SeedSourceDto> getPreDefSeedCombination(ZonedDateTime zonedDateTime){
+
         final List<SeedSourceDto> seedList = new ArrayList<>();
-        SeedSourceDto nistSeed = context.getBean(SeedLastNist.class).getSeed();
-        SeedSourceDto uChileSeed = context.getBean(SeedLastChile.class).getSeed();
-        SeedSourceDto anuSeed = context.getBean(SeedAnuQuantumRNG.class).getSeed();
+        List<SeedInterface> seedSources = new ArrayList<SeedInterface>();
 
-        if(nistSeed!=null)
-            seedList.add(nistSeed);
-        if(uChileSeed!=null)
-            seedList.add(uChileSeed);
-        if(anuSeed != null)
-            seedList.add(anuSeed);
+        seedSources.add(context.getBean(SeedLastNist.class));
+        seedSources.add(context.getBean(SeedLastChile.class));
+        seedSources.add(context.getBean(SeedAnuQuantumRNG.class));
+
+        ExecutorService service = Executors.newFixedThreadPool(seedSources.size());
+
+        IntStream.range(0, seedSources.size()).forEach(index -> {
+            service.submit(() -> {
+                SeedSourceDto seedDto = seedSources.get(index).getSeed();
+                while( seedDto == null || seedDto.timeStamp()== null || seedDto.timeStamp().compareTo(zonedDateTime)<0) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {}
+                    seedDto = seedSources.get(index).getSeed();
+                }
+            });
+        });
 
 
-        return new ArrayList<>(seedList);
+        try {
+            service.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {}
+
+        seedSources.forEach(seedSource ->{
+            SeedSourceDto seed = seedSource.getSeed();
+            if( seed !=null && seed.getSeed()!=null && seed.timeStamp().compareTo(zonedDateTime)>=0 )
+                seedList.add(seedSource.getSeed());
+        });
+
+        seedList.sort((o1, o2) -> o1.hashCode()-o2.hashCode() );
+
+        return seedList;
     }
 
     public List<SeedSourceDto> getHonestPartyCombination(){

@@ -10,9 +10,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.sql.Time;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @ConditionalOnProperty(
@@ -42,6 +47,12 @@ public class VdfQueueConsumer {
         ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES);
 
         long between = ChronoUnit.MINUTES.between(parse, now);
+
+        if(ZonedDateTime.now().isAfter(now.plusSeconds(15))) {
+            logger.warn("Too late, waiting next pulse:" + dto);
+            return;
+        }
+
         if (between==0){
             logger.warn("PrecommitmentQueueDto received:  " + dto);
             seedLocalPrecommitmentCombination.setPrecommitment(dto);
@@ -49,7 +60,7 @@ public class VdfQueueConsumer {
             combinationService.run();
             logger.warn(String.format("combination released: %s - iterations: %s",  dto.getTimeStamp(), env.getProperty("beacon.combination.iterations")));
         } else {
-            logger.warn("Discarded:" + dto);
+            logger.warn("Delayed pulse discarded:" + dto);
         }
     }
 

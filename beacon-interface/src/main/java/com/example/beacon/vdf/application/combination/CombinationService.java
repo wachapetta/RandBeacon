@@ -53,46 +53,10 @@ public class CombinationService {
     public void run() throws Exception {
         logger.warn("Start run:");
 
-        List<SeedSourceDto> preDefSeedCombination = seedBuilder.getPreDefSeedCombination();
-
-        // dalayed pulses?
         ZonedDateTime now = getCurrentTrucatedZonedDateTime();
-        List<SeedSourceDto> delayedPulseList = preDefSeedCombination.stream()
-                .filter(seedSourceDto ->
-                        ZonedDateTime.parse(seedSourceDto.getTimeStamp(), DateTimeFormatter.ISO_DATE_TIME)
-                                .isBefore(now))
-                .collect(Collectors.toList());
+        List<SeedSourceDto> preDefSeedCombination = seedBuilder.getPreDefSeedCombination(now);
 
-        if (!delayedPulseList.isEmpty()){
-
-            for (int i = 0; i < countLimit; i++) {
-                List<SeedSourceDto> newList = getDelayedPulses();
-
-                logger.warn("Combination - retry: {}" , i);
-
-                List<SeedSourceDto> newListResult = newList.stream()
-                        .filter(seedSourceDto ->
-                                ZonedDateTime.parse(seedSourceDto.getTimeStamp(), DateTimeFormatter.ISO_DATE_TIME)
-                                        .isBefore(now))
-                        .collect(Collectors.toList());
-
-                if (newListResult.size() == 0){
-                    preDefSeedCombination.clear();
-                    preDefSeedCombination.addAll(newList);
-                    break;
-                }
-            }
-
-        }
-
-        preDefSeedCombination
-                .removeIf(seedSourceDto -> ZonedDateTime.parse(seedSourceDto.getTimeStamp(), DateTimeFormatter.ISO_DATE_TIME)
-                .isBefore(now));
-
-        if (preDefSeedCombination.isEmpty()){
-            return;
-        }
-        // dalayed pulses?
+        if (preDefSeedCombination.isEmpty()) return;
 
         List<SeedSourceDto> seeds = new ArrayList<>();
         seeds.addAll(preDefSeedCombination);
@@ -112,7 +76,7 @@ public class CombinationService {
         } catch (InterruptedException e) {
             logger.warn("interrupted");
         }
-        return seedBuilder.getPreDefSeedCombination();
+        return seedBuilder.getPreDefSeedCombination(ZonedDateTime.now());
     }
 
     private void runAndPersist(BigInteger x) throws Exception {

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Data
@@ -28,5 +29,9 @@ public class SeedSourceDto {
     @Override
     public int hashCode() {
         return Objects.hash(timeStamp, uri);
+    }
+
+    public ZonedDateTime timeStamp(){
+        return ZonedDateTime.parse(this.timeStamp);
     }
 }
