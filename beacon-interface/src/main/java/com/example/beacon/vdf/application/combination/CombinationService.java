@@ -4,7 +4,6 @@ import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.ICipherSuite;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CipherSuiteBuilder;
 import com.example.beacon.vdf.application.combination.dto.SeedUnicordCombinationVo;
-import com.example.beacon.vdf.application.vdfunicorn.SeedPostDto;
 import com.example.beacon.vdf.infra.entity.CombinationEntity;
 import com.example.beacon.vdf.sources.SeedBuilder;
 import com.example.beacon.vdf.sources.SeedSourceDto;

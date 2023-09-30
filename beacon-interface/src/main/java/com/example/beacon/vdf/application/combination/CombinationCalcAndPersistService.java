@@ -42,6 +42,8 @@ public class CombinationCalcAndPersistService {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 
+    private int delayInSeconds;
+    private int delayInMinutes;
 
     @Autowired
     public CombinationCalcAndPersistService(CombinationRepository combinationRepository,
@@ -52,6 +54,16 @@ public class CombinationCalcAndPersistService {
         this.vdfUnicornService = vdfUnicornService;
         this.env = env;
         this.seedCombinationResult = seedCombinationResult;
+
+        try {
+            String[] split = env.getProperty("beacon.combination.delay").split(":");
+
+            this.delayInSeconds = Integer.parseInt(split[1]);
+            this.delayInMinutes = Integer.parseInt(split[0]);
+        }catch (RuntimeException e ){
+            this.delayInSeconds =0;
+            this.delayInMinutes =0;
+        }
     }
 
     //@Async("threadPoolTaskExecutor")
@@ -95,7 +107,7 @@ public class CombinationCalcAndPersistService {
         combinationEntity.setUri(uri);
         combinationEntity.setVersion("Version 1.0");
         combinationEntity.setPulseIndex(maxPulseIndex);
-        combinationEntity.setTimeStamp(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")).withSecond(0).withNano(0));
+        combinationEntity.setTimeStamp(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")).plusMinutes(delayInMinutes).withSecond(delayInSeconds).withNano(0));
         combinationEntity.setCertificateId(this.certificateId);
         combinationEntity.setCipherSuite(0);
 
@@ -133,8 +145,6 @@ public class CombinationCalcAndPersistService {
         if (!vdfUnicornService.isOpen()){
             return;
         }
-
-        log.warn(combinationResultDto.toString());
         seedCombinationResult.setCombinationResultDto(combinationResultDto);
         vdfUnicornService.endTimeSlot();
 
