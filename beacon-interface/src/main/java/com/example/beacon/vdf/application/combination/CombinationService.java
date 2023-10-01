@@ -70,6 +70,7 @@ public class CombinationService {
     }
 
 
+    @Deprecated
     private List<SeedSourceDto> getDelayedPulses(){
         try {
             sleep(200); // one second

@@ -26,12 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -111,7 +107,7 @@ public class NewPulseDomainService {
                 this.lastPulseEntity = pulsesRepository.last(currentChain.getChainIndex());
 
                 combinar(currentChain.getChainIndex(), numberOfSources);
-                processarAndPersistir();
+                proceedAndPersist();
                 cleanDiscardedNumbers();
 
             } catch (Exception e){
@@ -140,7 +136,7 @@ public class NewPulseDomainService {
         }
         //
     }
-    private void processarAndPersistir() throws Exception {
+    private void proceedAndPersist() throws Exception {
         if (combineDomainResult.getLocalRandomValueDtos().size() < 2){
             return;
         }
@@ -289,7 +285,7 @@ public class NewPulseDomainService {
             entropyRepository.deleteByTimeStamp(pulse.getTimeStamp());
 
             Instant now = Instant.now();
-            logger.warn("Pulse released:" + pulse.getTimeStamp()+":"+ now.toEpochMilli());
+            logger.warn("Pulse released:" + pulse.getTimeStamp()+":"+ now);
 
             String minutes = env.getProperty("beacon.vdf.combination.send.minutes");
             String[] split = minutes.split(",");
@@ -320,7 +316,6 @@ public class NewPulseDomainService {
 
     }
 
-    @Async
     private void sendPulseForCombinationQueue(Pulse pulse) throws InterruptedException{
 
         if (isSend){

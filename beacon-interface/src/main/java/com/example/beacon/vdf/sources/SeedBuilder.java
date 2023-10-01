@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,11 +45,14 @@ public class SeedBuilder {
 
         IntStream.range(0, seedSources.size()).forEach(index -> {
             service.submit(() -> {
+                Instant starting = Instant.now();
                 SeedSourceDto seedDto = seedSources.get(index).getSeed();
                 while( seedDto == null || seedDto.timeStamp()== null || seedDto.timeStamp().compareTo(zonedDateTime)<0) {
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {}
+
+                    if(Instant.now().toEpochMilli()-starting.toEpochMilli()>=5000) return;
                     seedDto = seedSources.get(index).getSeed();
                 }
             });

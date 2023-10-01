@@ -28,7 +28,7 @@ public class SeedSourceDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(timeStamp, uri);
+        return Objects.hash(timeStamp, uri,seed);
     }
 
     public ZonedDateTime timeStamp(){
