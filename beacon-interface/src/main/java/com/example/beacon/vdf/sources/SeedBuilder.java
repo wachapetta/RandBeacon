@@ -8,8 +8,8 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,12 +29,14 @@ public class SeedBuilder {
     public List<SeedSourceDto> getPreDefSeedCombination(ZonedDateTime zonedDateTime){
 
         final List<SeedSourceDto> seedList = new ArrayList<>();
-        List<SeedInterface> seedSources = new ArrayList<SeedInterface>();
+        List<SeedInterface> seedSources = new ArrayList<>();
         ExecutorService service;
 
         seedSources.add(context.getBean(SeedLastNist.class));
         seedSources.add(context.getBean(SeedLastChile.class));
         seedSources.add(context.getBean(SeedAnuQuantumRNG.class));
+
+        Collections.shuffle(seedSources, new Random());
 
         service = Executors.newFixedThreadPool(seedSources.size());
 
@@ -49,22 +51,15 @@ public class SeedBuilder {
 
                     if(Instant.now().toEpochMilli()-starting.toEpochMilli()>=5000) return;
                     seedDto = seedSources.get(index).getSeed();
+                    if( seedDto !=null && seedDto.getSeed()!=null && seedDto.timeStamp().compareTo(zonedDateTime)>=0 )
+                        seedList.add(seedDto);
                 }
             });
         });
 
-
         try {
             service.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {}
-
-        seedSources.forEach(seedSource ->{
-            SeedSourceDto seed = seedSource.getSeed();
-            if( seed !=null && seed.getSeed()!=null && seed.timeStamp().compareTo(zonedDateTime)>=0 )
-                seedList.add(seedSource.getSeed());
-        });
-
-        seedList.sort(Comparator.comparingInt(SeedSourceDto::hashCode));
 
         return seedList;
     }

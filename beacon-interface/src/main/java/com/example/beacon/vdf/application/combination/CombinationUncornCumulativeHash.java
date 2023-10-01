@@ -24,8 +24,8 @@ public class CombinationUncornCumulativeHash {
             if (i == 0){
                 currentValue = cipherSuite.getDigest(concatValues(seedList.get(0)));
             } else {
-                String teste = currentValue + cipherSuite.getDigest(concatValues(dto));
-                currentValue = cipherSuite.getDigest(teste);
+                String tmp = currentValue + cipherSuite.getDigest(concatValues(dto));
+                currentValue = cipherSuite.getDigest(tmp);
             }
 
             String cumulativeDigest = currentValue;
