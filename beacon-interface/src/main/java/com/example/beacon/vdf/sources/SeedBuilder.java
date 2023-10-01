@@ -30,12 +30,13 @@ public class SeedBuilder {
 
         final List<SeedSourceDto> seedList = new ArrayList<>();
         List<SeedInterface> seedSources = new ArrayList<SeedInterface>();
+        ExecutorService service;
 
         seedSources.add(context.getBean(SeedLastNist.class));
         seedSources.add(context.getBean(SeedLastChile.class));
         seedSources.add(context.getBean(SeedAnuQuantumRNG.class));
 
-        ExecutorService service = Executors.newFixedThreadPool(seedSources.size());
+        service = Executors.newFixedThreadPool(seedSources.size());
 
         IntStream.range(0, seedSources.size()).forEach(index -> {
             service.submit(() -> {
