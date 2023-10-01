@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,12 +23,6 @@ public class SeedBuilder {
     @Autowired
     public SeedBuilder(ApplicationContext context) {
         this.context = context;
-    }
-
-    public void getSeed(SeedInterface seed) {
-        synchronized (this) {
-
-        }
     }
 
 //     Beacon Combination
@@ -69,7 +63,7 @@ public class SeedBuilder {
                 seedList.add(seedSource.getSeed());
         });
 
-        seedList.sort((o1, o2) -> o1.hashCode()-o2.hashCode() );
+        seedList.sort(Comparator.comparingInt(SeedSourceDto::hashCode));
 
         return seedList;
     }

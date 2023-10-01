@@ -15,10 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.example.beacon.vdf.infra.util.DateUtil.getCurrentTrucatedZonedDateTime;
 import static java.lang.Thread.sleep;
@@ -38,7 +36,6 @@ public class CombinationService {
 
     private final int iterations;
 
-    private final int countLimit;
 
     @Autowired
     public CombinationService(Environment env, SeedBuilder seedBuilder, CombinationCalcAndPersistService combinationCalcAndPersistService) {
@@ -46,7 +43,6 @@ public class CombinationService {
         this.combinationCalcAndPersistService = combinationCalcAndPersistService;
         this.cipherSuite = CipherSuiteBuilder.build(0);
         this.iterations = Integer.parseInt(env.getProperty("beacon.combination.iterations"));
-        this.countLimit = Integer.parseInt(env.getProperty("beacon.combination.sources.seconds-to-retry"));
     }
 
     @TimingPerformanceAspect
@@ -67,17 +63,6 @@ public class CombinationService {
         final BigInteger x = new BigInteger(seedUnicordCombinationVos.get(seedUnicordCombinationVos.size() - 1).getCumulativeHash(), 16);
 
         runAndPersist(x);
-    }
-
-
-    @Deprecated
-    private List<SeedSourceDto> getDelayedPulses(){
-        try {
-            sleep(200); // one second
-        } catch (InterruptedException e) {
-            logger.warn("interrupted");
-        }
-        return seedBuilder.getPreDefSeedCombination(ZonedDateTime.now());
     }
 
     private void runAndPersist(BigInteger x) throws Exception {
