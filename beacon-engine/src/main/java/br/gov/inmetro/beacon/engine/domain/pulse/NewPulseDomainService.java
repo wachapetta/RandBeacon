@@ -40,13 +40,11 @@ public class NewPulseDomainService {
 
     private final Environment env;
 
-    private final PulsesRepository pulsesRepository;
 
     private final EntropyRepository entropyRepository;
 
     private final CombinationErrors combinationErrorsRepository;
-    private final boolean isSend;
-    private final long pulseDelay;
+    private final NewPulseFacade pulseFacade;
 
     private List<EntropyDto> regularNoises = new ArrayList<>();
 
@@ -61,32 +59,25 @@ public class NewPulseDomainService {
 
     private final String certificateId = "04c5dc3b40d25294c55f9bc2496fd4fe9340c1308cd073900014e6c214933c7f7737227fc5e4527298b9e95a67ad92e0310b37a77557a10518ced0ce1743e132";
 
-    private final BeaconVdfQueueSender beaconVdfQueueSender;
-
     private final ISendAlert iSendAlert;
 
     private static final Logger logger = LoggerFactory.getLogger(NewPulseDomainService.class);
 
     private final String numberOfSources;
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-
 
     @Autowired
-    public NewPulseDomainService(Environment env, PulsesRepository pulsesRepository, EntropyRepository entropyRepository,
+    public NewPulseDomainService(Environment env, EntropyRepository entropyRepository,
                                  CombinationErrors combinationErrors, PastOutputValuesService pastOutputValuesService,
-                                 BeaconVdfQueueSender beaconVdfQueueSender, ISendAlert iSendAlert,ActiveChainService activeChainService) {
+                                 ISendAlert iSendAlert,ActiveChainService activeChainService, NewPulseFacade facade) {
         this.env = env;
-        this.pulsesRepository = pulsesRepository;
         this.entropyRepository = entropyRepository;
         this.combinationErrorsRepository = combinationErrors;
         this.pastOutputValuesService = pastOutputValuesService;
-        this.beaconVdfQueueSender = beaconVdfQueueSender;
         this.iSendAlert = iSendAlert;
         this.activeChainService = activeChainService;
         this.numberOfSources = env.getProperty("beacon.number-of-entropy-sources");
-        this.isSend = Boolean.parseBoolean(this.env.getProperty("beacon.vdf.combination.send.precom-to-queue"));
-        this.pulseDelay = Long.parseLong(this.env.getProperty("beacon.pulse.release.delay"));
+        this.pulseFacade = facade;
     }
 
 
@@ -104,7 +95,7 @@ public class NewPulseDomainService {
                 this.regularNoises = regularNoises;
 
                 this.currentChain = ChainDomainService.getActiveChain();
-                this.lastPulseEntity = pulsesRepository.last(currentChain.getChainIndex());
+                this.lastPulseEntity = pulseFacade.getLast(currentChain.getChainIndex());
 
                 combinar(currentChain.getChainIndex(), numberOfSources);
                 proceedAndPersist();
@@ -277,10 +268,10 @@ public class NewPulseDomainService {
 
     @Transactional
     protected void persistOnePulse(Pulse pulse) throws InterruptedException {
-        Optional<PulseEntity> byChainAndTimestamp = pulsesRepository.findByChainAndTimestamp(currentChain.getChainIndex(), pulse.getTimeStamp());
+        Optional<PulseEntity> byChainAndTimestamp = pulseFacade.findByChainAndTimestamp(currentChain.getChainIndex(), pulse.getTimeStamp());
 
         if (!byChainAndTimestamp.isPresent()){
-            pulsesRepository.save(new PulseEntity(pulse));
+            pulseFacade.save(new PulseEntity(pulse));
             combinationErrorsRepository.persist(combineDomainResult.getCombineErrorList());
             entropyRepository.deleteByTimeStamp(pulse.getTimeStamp());
 
@@ -296,13 +287,8 @@ public class NewPulseDomainService {
             }
 
             if(values.contains(now.atZone(ZoneOffset.UTC).getMinute())){
-                executor.submit(() -> {
-                            sendPulseForCombinationQueue(pulse);
-                            return 0;
-                        }
-                );
+                pulseFacade.sendPulseForCombinationQueue(pulse);
             }
-
 
             if(!activeChainService.hasActiveChain()) {
                 NewPulseDomainService.endOfChainPublished = true;
@@ -314,14 +300,6 @@ public class NewPulseDomainService {
             iSendAlert.sendTimestampAlreadyPublishedException(pulse);
         }
 
-    }
-
-    private void sendPulseForCombinationQueue(Pulse pulse) throws InterruptedException{
-
-        if (isSend){
-            beaconVdfQueueSender.sendCombination(new PrecommitmentQueueDto(getTimeStampFormated(pulse.getTimeStamp()), pulse.getPrecommitmentValue(), pulse.getUri()));
-            logger.warn("sended to combination");
-        }
     }
 
     private void cleanDiscardedNumbers(){
