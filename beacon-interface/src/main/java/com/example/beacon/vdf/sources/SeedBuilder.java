@@ -70,6 +70,10 @@ public class SeedBuilder {
 
                 }
                 if( seedDto !=null && seedDto.getSeed()!=null && seedDto.timeStamp().compareTo(zonedDateTime)>=0 ){
+
+                    if(seedDto.getSeed().equals(""))
+                        return;
+
                     synchronized (seedList){
                         seedList.add(seedDto);
                     }
