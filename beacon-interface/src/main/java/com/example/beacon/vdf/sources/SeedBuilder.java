@@ -18,6 +18,10 @@ import java.util.stream.IntStream;
 @Component
 public class SeedBuilder {
 
+    public static final int timeoutInMillis = 5000;
+
+    public static final int tries = 5;
+
     private final ApplicationContext context;
 
     @Autowired
@@ -28,7 +32,7 @@ public class SeedBuilder {
 //     Beacon Combination
     public List<SeedSourceDto> getPreDefSeedCombination(ZonedDateTime zonedDateTime){
 
-        final List<SeedSourceDto> seedList = new ArrayList<>();
+        final List<SeedSourceDto> seedList = Collections.synchronizedList(new ArrayList<>());
         List<SeedInterface> seedSources = new ArrayList<>();
         ExecutorService service;
 
@@ -49,16 +53,19 @@ public class SeedBuilder {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {}
 
-                    if(Instant.now().toEpochMilli()-starting.toEpochMilli()>=5000) return;
+                    if(Instant.now().toEpochMilli()-starting.toEpochMilli()>= timeoutInMillis) return;
                     seedDto = seedSources.get(index).getSeed();
-                    if( seedDto !=null && seedDto.getSeed()!=null && seedDto.timeStamp().compareTo(zonedDateTime)>=0 )
+                }
+                if( seedDto !=null && seedDto.getSeed()!=null && seedDto.timeStamp().compareTo(zonedDateTime)>=0 ){
+                    synchronized (seedList){
                         seedList.add(seedDto);
+                    }
                 }
             });
         });
 
         try {
-            service.awaitTermination(5, TimeUnit.SECONDS);
+            service.awaitTermination(timeoutInMillis/1000, TimeUnit.SECONDS);
         } catch (InterruptedException e) {}
 
         return seedList;

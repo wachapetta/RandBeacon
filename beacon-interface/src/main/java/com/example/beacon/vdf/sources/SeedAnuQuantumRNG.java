@@ -47,8 +47,6 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
         boolean threeTimesADay = (minute == 59 && (hour == 7 || hour == 15 || hour == 23)) || (minute <= 1) && (hour == 8 || hour == 14 || hour == 0);
 
-        log.info("getting anu seed at {}?: {}",now, threeTimesADay);
-
         if(threeTimesADay){
 
             log.info("getting anu seed at {}",now);
