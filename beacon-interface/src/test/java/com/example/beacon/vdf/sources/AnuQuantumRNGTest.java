@@ -2,7 +2,6 @@ package com.example.beacon.vdf.sources;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.web.client.RestTemplate;
@@ -38,7 +37,7 @@ public class AnuQuantumRNGTest {
 
         @Override
         public String getProperty(String key) {
-            return "VS76kiBiXSaqjJHHy4B5o9z686jHKMDvYzsnq2k1";
+            return "";
         }
 
         @Override
@@ -78,21 +77,32 @@ public class AnuQuantumRNGTest {
     };
 
     @Test
-    public void testSeed(){
+    public void testRandomOrg(){
 
         RestTemplate restTemplate = new RestTemplate();
 
-        SeedAnuQuantumRNG obj = new SeedAnuQuantumRNG(restTemplate, env);
+        SeedRandomOrgRNG obj = new SeedRandomOrgRNG(restTemplate);
 
         SeedSourceDto seed = obj.getSeed();
 
-        System.out.println(seed.getUri());
-        System.out.println(seed.getTimeStamp());
-        System.out.println(seed.getDescription());
         System.out.println(seed.getSeed());
 
-        Assert.assertTrue(true);
+        Assert.assertTrue(seed!=null);
 
+    }
+
+    @Test
+    public void testAnuQuantum(){
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        SeedAnuQuantumRNG obj = new SeedAnuQuantumRNG(restTemplate,env);
+
+        SeedSourceDto seed = obj.getSeed();
+
+        System.out.println(seed.getSeed());
+
+        Assert.assertTrue(seed!=null);
 
     }
 
