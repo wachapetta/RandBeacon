@@ -7,19 +7,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeName("pulse")
+@JsonTypeName("result")
 //@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT ,use = JsonTypeInfo.Id.NAME)
-public class AnuQRNGRemoteDto {
-    private List<String> data;
+public class RandomOrgRemoteDto {
 
-    public String getRandom(){
+    Map<String,Object> result;
+
+    public String getRandomValue(){
+        Map<String,Object> random = (Map<String, Object>) getResult().get("random");
+        List<String> data = (List<String>) random.get("data");
         StringBuilder builder = new StringBuilder();
 
-        getData().forEach(str-> builder.append(str));
+        data.forEach(s -> builder.append(s));
 
         return builder.toString();
     }

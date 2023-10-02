@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Instant;
+
 @Component
 public class SeedLastNist implements SeedInterface {
 
@@ -27,7 +29,7 @@ public class SeedLastNist implements SeedInterface {
         try{
             BeaconRemoteDto lastPulse = restTemplate.getForObject("https://beacon.nist.gov/beacon/2.0/pulse/last", BeaconRemoteDto.class);
 
-            return new SeedSourceDto(lastPulse.getTimeStamp(), lastPulse.getUri(), lastPulse.getPrecommitmentValue(),
+            return new SeedSourceDto(Instant.now().toString(), lastPulse.getUri(), lastPulse.getPrecommitmentValue(),
                 DESCRIPTION, SeedLastNist.class);
         }catch (Exception e){
             log.warn("Nist's beacon not available");

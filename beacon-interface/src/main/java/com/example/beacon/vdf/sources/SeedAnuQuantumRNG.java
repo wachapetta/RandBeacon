@@ -55,14 +55,11 @@ public class SeedAnuQuantumRNG implements SeedInterface {
                 ResponseEntity<AnuQRNGRemoteDto>  response =restTemplate.exchange("https://api.quantumnumbers.anu.edu.au?length=5&type=hex16&size=8", HttpMethod.GET, entity, AnuQRNGRemoteDto.class);
 
                 AnuQRNGRemoteDto remoteDto = response.getBody();
-                StringBuilder builder = new StringBuilder();
 
                 if(remoteDto == null) return null;
 
-                remoteDto.getData().forEach(str-> builder.append(str));
-
                 return new SeedSourceDto(now.toString(), "https://quantumnumbers.anu.edu.au/",
-                        builder.toString() , DESCRIPTION, SeedAnuQuantumRNG.class);
+                        remoteDto.getRandom() , DESCRIPTION, SeedAnuQuantumRNG.class);
             }catch (Exception e){
                 log.warn("Anu quantum service not available");
             }

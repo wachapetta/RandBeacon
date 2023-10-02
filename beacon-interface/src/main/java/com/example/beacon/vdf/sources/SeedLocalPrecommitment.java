@@ -3,6 +3,8 @@ package com.example.beacon.vdf.sources;
 import com.example.beacon.vdf.scheduling.PrecommitmentQueueDto;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 public class SeedLocalPrecommitment implements SeedInterface{
 
@@ -16,7 +18,7 @@ public class SeedLocalPrecommitment implements SeedInterface{
 
     @Override
     public SeedSourceDto getSeed() {
-        SeedSourceDto seedSourceDto = new SeedSourceDto(dto.getTimeStamp(), dto.getUri(),
+        SeedSourceDto seedSourceDto = new SeedSourceDto(Instant.now().toString(), dto.getUri(),
                 dto.getPrecommitment(), DESCRIPTION, SeedLocalPrecommitment.class);
         this.dto = null;
         return seedSourceDto;

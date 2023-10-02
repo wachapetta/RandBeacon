@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class SeedBuilder {
 
-    public static final int timeoutInMillis = 5000;
+    public static final int timeoutInMillis = 6500;
 
     public static final int tries = 5;
 
@@ -41,6 +41,8 @@ public class SeedBuilder {
         seedSources.add(context.getBean(SeedLastNist.class));
         seedSources.add(context.getBean(SeedLastChile.class));
         seedSources.add(context.getBean(SeedAnuQuantumRNG.class));
+        seedSources.add(context.getBean(SeedDrandRNG.class));
+        seedSources.add(context.getBean(SeedRandomOrgRNG.class));
 
         Collections.shuffle(seedSources, new Random());
 
@@ -53,7 +55,7 @@ public class SeedBuilder {
                 int tries = 5;
 
                 SeedSourceDto seedDto = seedSources.get(index).getSeed();
-                log.warn("1st try thread {} seed {}",index,seedSources.get(index).getClass());
+                log.info("1st try thread {} seed {}",index,seedSources.get(index).getClass());
                 while( seedDto == null || seedDto.timeStamp()== null || seedDto.timeStamp().compareTo(zonedDateTime)<0) {
                     tries--;
 
@@ -66,7 +68,7 @@ public class SeedBuilder {
                     } catch (InterruptedException e) {}
 
                     seedDto = seedSources.get(index).getSeed();
-                    log.warn("thread {} seed {}",index,seedSources.get(index).getClass());
+                    log.info("thread {} seed {}",index,seedSources.get(index).getClass());
 
                 }
                 if( seedDto !=null && seedDto.getSeed()!=null && seedDto.timeStamp().compareTo(zonedDateTime)>=0 ){
@@ -82,7 +84,7 @@ public class SeedBuilder {
         });
 
         try {
-            service.awaitTermination(timeoutInMillis/1000, TimeUnit.SECONDS);
+            service.awaitTermination(timeoutInMillis, TimeUnit.MILLISECONDS);
             service.shutdown();
         } catch (InterruptedException e) {
             service.shutdownNow();

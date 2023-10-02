@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Instant;
+
 @Component
 public class SeedLastChile implements SeedInterface {
 
@@ -26,7 +28,7 @@ public class SeedLastChile implements SeedInterface {
 //        RestTemplate restTemplate = new RestTemplate();
         try {
             BeaconRemoteDto lastPulse = restTemplate.getForObject("https://random.uchile.cl/beacon/2.0-beta1/pulse?last", BeaconRemoteDto.class);
-            return new SeedSourceDto(lastPulse.getTimeStamp(), lastPulse.getUri(),
+            return new SeedSourceDto(Instant.now().toString(), lastPulse.getUri(),
                     lastPulse.getPrecommitmentValue(), DESCRIPTION, SeedLastChile.class);
         }catch (Exception e ){
             log.warn("UChile's beacon not available");
