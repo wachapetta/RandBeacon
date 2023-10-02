@@ -1,5 +1,6 @@
 package com.example.beacon.vdf.sources;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 @Component
+@Slf4j
 public class SeedBuilder {
 
     public static final int timeoutInMillis = 5000;
@@ -44,17 +46,28 @@ public class SeedBuilder {
 
         service = Executors.newFixedThreadPool(seedSources.size());
 
+        Instant starting = Instant.now();
+
         IntStream.range(0, seedSources.size()).forEach(index -> {
             service.submit(() -> {
-                Instant starting = Instant.now();
+                int tries = 5;
+
                 SeedSourceDto seedDto = seedSources.get(index).getSeed();
+                log.warn("1st try thread {} seed {}",index,seedSources.get(index).getClass());
                 while( seedDto == null || seedDto.timeStamp()== null || seedDto.timeStamp().compareTo(zonedDateTime)<0) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {}
+                    tries--;
+
+                    if (tries==0) return;
 
                     if(Instant.now().toEpochMilli()-starting.toEpochMilli()>= timeoutInMillis) return;
+
+                    try {
+                        Thread.sleep(800);
+                    } catch (InterruptedException e) {}
+
                     seedDto = seedSources.get(index).getSeed();
+                    log.warn("thread {} seed {}",index,seedSources.get(index).getClass());
+
                 }
                 if( seedDto !=null && seedDto.getSeed()!=null && seedDto.timeStamp().compareTo(zonedDateTime)>=0 ){
                     synchronized (seedList){
@@ -66,7 +79,10 @@ public class SeedBuilder {
 
         try {
             service.awaitTermination(timeoutInMillis/1000, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {}
+            service.shutdown();
+        } catch (InterruptedException e) {
+            service.shutdownNow();
+        }
 
         return seedList;
     }
