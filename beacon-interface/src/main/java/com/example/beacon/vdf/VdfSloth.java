@@ -1,7 +1,16 @@
 package com.example.beacon.vdf;
 
-import java.math.BigInteger;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+@Component
+@Slf4j
 public class VdfSloth {
 
     private static final BigInteger BIG_INT_QUATRO = new BigInteger("4");
@@ -9,17 +18,21 @@ public class VdfSloth {
     private static final BigInteger BIG_INT_UM = new BigInteger("1");
     private static final BigInteger p = new BigInteger("9325099249067051137110237972241325094526304716592954055103859972916682236180445434121127711536890366634971622095209473411013065021251467835799907856202363"); // foi o q que funcionou melhor
 
-    public static BigInteger mod_op(BigInteger x, int t) {
+    @Async("higherPriorityExecutor")
+    public Future<BigInteger> mod_op(BigInteger x, int t) throws ExecutionException, InterruptedException {
+
+        log.info("calculation");
         for (int i = 0; i < t; i++) {
             x = mod_sqrt_op(x, p);
         }
-        return x;
+        return new AsyncResult<BigInteger>(x);
     }
 
-    private static BigInteger mod_sqrt_op(BigInteger x, BigInteger p) {
+
+    private BigInteger mod_sqrt_op(BigInteger x, BigInteger p) {
          BigInteger pmais1duv4 = p.add(BIG_INT_UM).divide( BIG_INT_QUATRO);
          BigInteger y = x.modPow(pmais1duv4,p);
-         return y ;
+         return y;
     }
 
     private static boolean quad_res(BigInteger x, BigInteger p) {

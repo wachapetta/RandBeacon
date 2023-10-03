@@ -7,52 +7,53 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.concurrent.ExecutionException;
 
 public class UnicornCurrentDtoSlothTest {
 
     private static final Logger logger = LoggerFactory.getLogger(VdfUnicornService.class);
 
     @Test
-    public void testVdfSloth() {
+    public void testVdfSloth() throws ExecutionException, InterruptedException {
         int iterations = 10;
 
         String x1 = "1404043690629380907225335546537072240138452033482682978653709920833508392304604779405049507673218509920214876808984370444512904269659903953893724698970227";
-        BigInteger y1 = VdfSloth.mod_op(new BigInteger(x1), iterations);
+        BigInteger y1 = new VdfSloth().mod_op(new BigInteger(x1), iterations).get();
         System.out.println("y1:" + y1);
 
         boolean b1 = VdfSloth.mod_verif(y1, new BigInteger(x1), 10);
         System.out.println(b1);
 
         String x2 = "10513531349213524528308273595862543424331204518596323927705455877377838285627879541326447725170980613332871249345955821936741663537033130006675205257763371";
-        BigInteger y2 = VdfSloth.mod_op(new BigInteger(x2), iterations);
+        BigInteger y2 = new VdfSloth().mod_op(new BigInteger(x2), iterations).get();
         System.out.println("y2:" + y2);
 
         boolean b2 = VdfSloth.mod_verif(y2, new BigInteger(x2), 10);
         System.out.println(b2);
 
         String x3 = "10893863243894043779135616321778625368455310435028551601071697462018347952009212797828726307881439778513485521440424865009746643780290776664161508987293011";
-        BigInteger y3 = VdfSloth.mod_op(new BigInteger(x3), iterations);
+        BigInteger y3 = new VdfSloth().mod_op(new BigInteger(x3), iterations).get();
         System.out.println("y3:" + y3);
 
-        boolean b3 = VdfSloth.mod_verif(y3, new BigInteger(x3), 10);
+        boolean b3 = new VdfSloth().mod_verif(y3, new BigInteger(x3), 10);
         System.out.println(b3);
 
         String x4 = "8172997724128768607836703758283340171365537171039216224808675324911242242893628654878825158859900470643495664805479201216692478122892771307442460586450483";
-        BigInteger y4 = VdfSloth.mod_op(new BigInteger(x4), iterations);
+        BigInteger y4 = new VdfSloth().mod_op(new BigInteger(x4), iterations).get();
         System.out.println("y4:" + y4);
 
         boolean b4 = VdfSloth.mod_verif(y4, new BigInteger(x4), 10);
         System.out.println(b4);
 
         String x5 = "12883743427730472174983249083648262672111950686303285737479481651912251175496309782377795231403982170293815714443312863417623949779691678972961576702317844";
-        BigInteger y5 = VdfSloth.mod_op(new BigInteger(x5), iterations);
+        BigInteger y5 = new VdfSloth().mod_op(new BigInteger(x5), iterations).get();
         System.out.println("y5:" + y5);
 
         boolean b5 = VdfSloth.mod_verif(y5, new BigInteger(x5), 10);
         System.out.println(b5);
 
         String x6 = "4960205710156247156456168345127940463607947358116608304865425051820993527554223479701937259869115481771524988174988225380375161612323180248416409690329599";
-        BigInteger y6 = VdfSloth.mod_op(new BigInteger(x6), iterations);
+        BigInteger y6 = new VdfSloth().mod_op(new BigInteger(x6), iterations).get();
         System.out.println("y6:" + y6);
 
         boolean b6 = VdfSloth.mod_verif(y6, new BigInteger(x6), 10);
@@ -62,7 +63,7 @@ public class UnicornCurrentDtoSlothTest {
         String x7Modificado = "823920245827210330710571930189147084766575680729191669369781468565716325629662978509949355527916347475295284359275643718196626872161621364872891182969113";
 
 
-        BigInteger y7 = VdfSloth.mod_op(new BigInteger(x7), iterations);
+        BigInteger y7 = new VdfSloth().mod_op(new BigInteger(x7), iterations).get();
         System.out.println("y7:" + y7);
 
         boolean b7 = VdfSloth.mod_verif(y7, new BigInteger(x7Modificado), 10);
@@ -82,7 +83,7 @@ public class UnicornCurrentDtoSlothTest {
     }
 
 //    @Test
-    public void testTimeSloth(){
+    public void testTimeSloth() throws ExecutionException, InterruptedException {
 //        int iterations = 200000;   // 1:14
 //        int iterations = 190000;   // 1:10
 //        int iterations = 180000;   // 1:08
@@ -93,7 +94,7 @@ public class UnicornCurrentDtoSlothTest {
         String x1 = "1404043690629380907225335546537072240138452033482682978653709920833508392304604779405049507673218509920214876808984370444512904269659903953893724698970227";
 
         logger.info("Start");
-        BigInteger y1 = VdfSloth.mod_op(new BigInteger(x1), iterations);
+        BigInteger y1 = new VdfSloth().mod_op(new BigInteger(x1), iterations).get();
         System.out.println("y1:" + y1);
         logger.info("End");
         System.out.println(iterations);

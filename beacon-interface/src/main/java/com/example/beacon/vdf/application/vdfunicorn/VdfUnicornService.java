@@ -40,6 +40,7 @@ public class VdfUnicornService {
 
     private final Environment env;
     private final List<Integer> startList;
+    private final VdfSloth sloth;
 
     private StatusEnum statusEnum;
 
@@ -60,7 +61,7 @@ public class VdfUnicornService {
     private static final Logger logger = LoggerFactory.getLogger(VdfUnicornService.class);
 
     @Autowired
-    public VdfUnicornService(Environment environment, SeedBuilder seedBuilder, VdfUnicornRepository vdfUnicornRepository, VdfUnicornPersistenceService persistenceService) {
+    public VdfUnicornService(Environment environment, SeedBuilder seedBuilder, VdfUnicornRepository vdfUnicornRepository, VdfUnicornPersistenceService persistenceService,VdfSloth sloth) {
 
         List<String> tmp = Arrays.asList(environment.getProperty("beacon.unicorn.start.submission").replace(" ","").replace("*","").split(","));
 
@@ -77,6 +78,7 @@ public class VdfUnicornService {
         this.windowStart = getTimestampOfNextRun(ZonedDateTime.now(),startList);
 
         this.persistenceService = persistenceService;
+        this.sloth = sloth;
     }
 
     public void startTimeSlot() {
@@ -157,7 +159,7 @@ public class VdfUnicornService {
         this.statusEnum = StatusEnum.STOPPED;
 
         logger.warn("Start unicorn sloth:");
-        BigInteger y = VdfSloth.mod_op(x, iterations);
+        BigInteger y = sloth.mod_op(x, iterations).get();
         logger.warn("End unicorn sloth:");
 
 

@@ -40,6 +40,7 @@ public class CombinationCalcAndPersistService {
     private final SeedCombinationResult seedCombinationResult;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final VdfSloth sloth;
 
 
     private int delayInSeconds;
@@ -48,12 +49,14 @@ public class CombinationCalcAndPersistService {
     @Autowired
     public CombinationCalcAndPersistService(CombinationRepository combinationRepository,
                                             VdfUnicornService vdfUnicornService,
-                                            Environment env, SeedCombinationResult seedCombinationResult) {
+                                            Environment env, SeedCombinationResult seedCombinationResult,
+                                            VdfSloth sloth) {
         this.combinationRepository = combinationRepository;
         this.cipherSuite = CipherSuiteBuilder.build(0);
         this.vdfUnicornService = vdfUnicornService;
         this.env = env;
         this.seedCombinationResult = seedCombinationResult;
+        this.sloth = sloth;
 
         try {
             String[] split = env.getProperty("beacon.combination.delay").split(":");
@@ -66,29 +69,24 @@ public class CombinationCalcAndPersistService {
         }
     }
 
-    //@Async("threadPoolTaskExecutor")
     public BigInteger run(BigInteger x, int iterations) throws Exception {
 
-
         log.warn("Start combination sloth");
-        BigInteger y = VdfSloth.mod_op(x, iterations);
+        BigInteger y = sloth.mod_op(x, iterations).get();
         log.warn("End combination sloth");
 
         return y;
     }
 
     @Transactional
-    protected void save(CombinationEntity combinationEntity) throws Exception {
+    protected CombinationResultDto save(CombinationEntity combinationEntity) throws Exception {
+
+        CombinationResultDto combinationResultDto = new CombinationResultDto(combinationEntity.getTimeStamp().toString(), combinationEntity.getOutputValue(), combinationEntity.getUri());
 
         combinationRepository.save(combinationEntity);
 
-        executor.submit(() -> {
-            CombinationResultDto combinationResultDto = new CombinationResultDto(combinationEntity.getTimeStamp().toString(), combinationEntity.getOutputValue(), combinationEntity.getUri());
-            sendToUnicorn(combinationResultDto);
-                    return 0;
-                }
-        );
         log.warn("Stop run:");
+        return combinationResultDto;
     }
 
     public CombinationEntity createCombinationEntity(List<SeedUnicordCombinationVo> seedUnicordCombinationVos, int iterations, BigInteger x, BigInteger y) throws Exception {

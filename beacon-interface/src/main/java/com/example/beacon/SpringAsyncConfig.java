@@ -21,4 +21,15 @@ public class SpringAsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
+    @Bean("higherPriorityExecutor")
+    public TaskExecutor getHighPriorityExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setThreadNamePrefix("Priority-");
+        executor.setThreadPriority(Thread.MAX_PRIORITY);
+        return executor;
+    }
+
 }

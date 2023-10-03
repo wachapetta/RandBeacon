@@ -11,8 +11,6 @@ import java.util.List;
 
 public class CombinationUncornCumulativeHash {
 
-    private List<SeedUnicordCombinationVo> seedUnicordCombinationVos = new ArrayList<>();
-
     public List<SeedUnicordCombinationVo> calcSeedConcat(ICipherSuite cipherSuite, List<SeedSourceDto> seedList) {
 
         String currentValue = "";

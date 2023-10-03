@@ -5,6 +5,7 @@ import br.gov.inmetro.beacon.library.ciphersuite.suite0.ICipherSuite;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CipherSuiteBuilder;
 import com.example.beacon.vdf.application.combination.dto.SeedUnicordCombinationVo;
 import com.example.beacon.vdf.infra.entity.CombinationEntity;
+import com.example.beacon.vdf.scheduling.CombinationResultDto;
 import com.example.beacon.vdf.sources.SeedBuilder;
 import com.example.beacon.vdf.sources.SeedSourceDto;
 import org.slf4j.Logger;
@@ -50,8 +51,9 @@ public class CombinationService {
         logger.warn("Start run:");
 
         ZonedDateTime now = getCurrentTrucatedZonedDateTime();
+        logger.debug("getting external seeds");
         List<SeedSourceDto> preDefSeedCombination = seedBuilder.getPreDefSeedCombination(now);
-
+        logger.debug("external seeds got");
         if (preDefSeedCombination.isEmpty()) return;
 
         List<SeedSourceDto> seeds = new ArrayList<>();
@@ -71,7 +73,9 @@ public class CombinationService {
 
         CombinationEntity combinationEntity = combinationCalcAndPersistService.createCombinationEntity(seedUnicordCombinationVos, iterations, x, y);
 
-        combinationCalcAndPersistService.save(combinationEntity);
+        CombinationResultDto combinationResultDto = combinationCalcAndPersistService.save(combinationEntity);
+
+        combinationCalcAndPersistService.sendToUnicorn(combinationResultDto);
     }
 
 }
