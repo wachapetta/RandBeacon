@@ -2,14 +2,12 @@ package com.example.beacon.vdf.application.combination;
 
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CipherSuiteBuilder;
 import com.example.beacon.vdf.application.combination.dto.SeedUnicordCombinationVo;
-import com.example.beacon.vdf.infra.util.DateUtil;
+
 import com.example.beacon.vdf.sources.SeedSourceDto;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -44,12 +42,12 @@ public class CombinationUncornCumulativeHashTest {
 
 
     @Test
-    public void testOneSeedV2() throws ExecutionException, InterruptedException {
+    public void testOneSeedV2() {
         List<SeedSourceDto> seeds = new ArrayList<>();
         seeds.add(seedSourceDto1);
 
         CombinationUncornCumulativeHash combinationUncornCumulativeHash = new CombinationUncornCumulativeHash();
-        List<SeedUnicordCombinationVo> resultList = combinationUncornCumulativeHash.calcSeedConcat(CipherSuiteBuilder.build(0), seeds).get();
+        List<SeedUnicordCombinationVo> resultList = combinationUncornCumulativeHash.calcSeedConcat(CipherSuiteBuilder.build(0), seeds);
 
         Assert.assertEquals("413572b69baa09c1c6c996a4c2203d0b81c5750dcb577d227eedd5c1f4df750660cf202e1f68534a19e2c3dec62a86c87f50c006302b5f27a4a064ea70eabd30",
                 resultList.get(0).getCumulativeHash());
@@ -58,14 +56,14 @@ public class CombinationUncornCumulativeHashTest {
     }
 
     @Test
-    public void testTwoSeeds() throws ExecutionException, InterruptedException {
+    public void testTwoSeeds() {
         List<SeedSourceDto> seeds = new ArrayList<>();
 
         seeds.add(seedSourceDto1);
         seeds.add(seedSourceDto2);
 
         CombinationUncornCumulativeHash combinationUncornCumulativeHash = new CombinationUncornCumulativeHash();
-        List<SeedUnicordCombinationVo> resultList = combinationUncornCumulativeHash.calcSeedConcat(CipherSuiteBuilder.build(0), seeds).get();
+        List<SeedUnicordCombinationVo> resultList = combinationUncornCumulativeHash.calcSeedConcat(CipherSuiteBuilder.build(0), seeds);
 
         Assert.assertEquals("c23e377470c3008dc629c1dc01326f724f9f622bb15ba8600d75ae97ad1fdd2afce2a36596206f5f739d58a408aac1be5428f2e86323c8e137cd2e7264d8e380",
                 resultList.get(1).getCumulativeHash());
@@ -74,7 +72,7 @@ public class CombinationUncornCumulativeHashTest {
     }
 
     @Test
-    public void testThreeSeeds() throws ExecutionException, InterruptedException {
+    public void testThreeSeeds() {
         List<SeedSourceDto> seeds = new ArrayList<>();
 
         seeds.add(seedSourceDto1);
@@ -82,7 +80,7 @@ public class CombinationUncornCumulativeHashTest {
         seeds.add(seedSourceDto3);
 
         CombinationUncornCumulativeHash combinationUncornCumulativeHash = new CombinationUncornCumulativeHash();
-        List<SeedUnicordCombinationVo> resultList = combinationUncornCumulativeHash.calcSeedConcat(CipherSuiteBuilder.build(0), seeds).get();
+        List<SeedUnicordCombinationVo> resultList = combinationUncornCumulativeHash.calcSeedConcat(CipherSuiteBuilder.build(0), seeds);
 
         Assert.assertEquals("cf5e22ac8bbf706ec2499b5e211aa49944cff1dc12582b2c5369f3679ae4f2560a6904206a042194e1f05a8ecf720c0afd6221d0cd59e7246797cc54457125f2",
                 resultList.get(2).getCumulativeHash());
