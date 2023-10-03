@@ -83,9 +83,10 @@ public class SeedBuilder {
             });
         });
 
+        service.shutdown();
         try {
             service.awaitTermination(timeoutInMillis, TimeUnit.MILLISECONDS);
-            service.shutdown();
+
         } catch (InterruptedException e) {
             service.shutdownNow();
         }

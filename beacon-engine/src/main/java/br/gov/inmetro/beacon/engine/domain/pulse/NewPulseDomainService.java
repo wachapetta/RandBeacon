@@ -280,7 +280,7 @@ public class NewPulseDomainService {
 
             String minutes = env.getProperty("beacon.vdf.combination.send.minutes");
             String[] split = minutes.split(",");
-            List<Integer> values = new ArrayList<Integer>();
+            List<Integer> values = new ArrayList<>();
 
             for (String s : split) {
                 values.add(Integer.parseInt(s));
