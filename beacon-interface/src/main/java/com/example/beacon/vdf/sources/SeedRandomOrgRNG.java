@@ -5,6 +5,7 @@
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.core.env.Environment;
     import org.springframework.http.*;
     import org.springframework.stereotype.Component;
     import org.springframework.web.client.RestTemplate;
@@ -20,11 +21,13 @@
         private static final String DESCRIPTION = "Random.org's random bytes";
 
         private final Logger log = LoggerFactory.getLogger(SeedRandomOrgRNG.class);
+        private final String apiKey;
 
         @Autowired
-        public SeedRandomOrgRNG(RestTemplate restTemplate){
+        public SeedRandomOrgRNG(RestTemplate restTemplate, Environment env){
 
             this.restTemplate = restTemplate;
+            this.apiKey = env.getProperty("apiKey");
         }
 
         @Override
@@ -40,7 +43,7 @@
                 append("\"jsonrpc\": \"2.0\",").
                     append(" \"method\": \"generateIntegers\",").
                     append("\"params\": {").
-                    append("\"apiKey\": \"5838ac9d-9085-4d34-b251-4ea0305c2dd8\",").
+                    append("\"apiKey\": \"").append(this.apiKey).append("\",").
                     append("\"n\": 64,").
                     append("\"min\": 0,").
                     append("\"max\": 255,").

@@ -2,6 +2,7 @@ package com.example.beacon.vdf.sources;
 
 
 import com.example.beacon.vdf.repository.AnuQRNGRemoteDto;
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.Date;
 
 @Component
 public class SeedAnuQuantumRNG implements SeedInterface {
@@ -21,15 +24,25 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
     private static final String DESCRIPTION = "ANU Quantum's random bytes";
 
-    private final Environment env;
-
     private final Logger log = LoggerFactory.getLogger(SeedAnuQuantumRNG.class);
+
+    private CronExpression expression;
+
+    final private String xapiKey;
 
     @Autowired
     public SeedAnuQuantumRNG(RestTemplate restTemplate, Environment env){
 
+        String tmp = env.getProperty("anu.quantum.cron");
         this.restTemplate = restTemplate;
-        this.env = env;
+        this.xapiKey = env.getProperty("x-api-key");
+
+        if(tmp!=null && !tmp.equals("") && !tmp.equals("false")){
+            try {
+                this.expression = new CronExpression(tmp);
+            } catch (ParseException e) {
+            }
+        }
     }
 
     @Override
@@ -37,7 +50,7 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set("x-api-key",env.getProperty("x-api-key"));
+        headers.set("x-api-key",this.xapiKey);
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
@@ -45,9 +58,7 @@ public class SeedAnuQuantumRNG implements SeedInterface {
         int hour = now.atZone(ZoneOffset.UTC).getHour();
         int minute = now.atZone(ZoneOffset.UTC).getMinute();
 
-        boolean threeTimesADay = (minute == 59 && (hour == 7 || hour == 15 || hour == 23)) || (minute <= 1) && (hour == 8 || hour == 14 || hour == 0);
-
-        if(threeTimesADay){
+        if(expression!=null && xapiKey!=null && expression.isSatisfiedBy(Date.from(now))){
 
             log.info("getting anu seed at {}",now);
 
@@ -62,6 +73,8 @@ public class SeedAnuQuantumRNG implements SeedInterface {
                         remoteDto.getRandom() , DESCRIPTION, SeedAnuQuantumRNG.class);
             }catch (Exception e){
                 log.warn("Anu quantum service not available");
+                log.error(e.getMessage());
+                e.printStackTrace();
             }
         }
         return new SeedSourceDto(now.toString(), "https://quantumnumbers.anu.edu.au/",
