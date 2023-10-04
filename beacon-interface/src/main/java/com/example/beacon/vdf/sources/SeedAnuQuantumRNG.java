@@ -1,21 +1,28 @@
 package com.example.beacon.vdf.sources;
 
 
+import com.cronutils.model.Cron;
+import com.cronutils.model.definition.CronDefinition;
+import com.cronutils.model.definition.CronDefinitionBuilder;
+import com.cronutils.model.time.ExecutionTime;
+import com.cronutils.parser.CronParser;
 import com.example.beacon.vdf.repository.AnuQRNGRemoteDto;
-import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.text.ParseException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Date;
+
+import static com.cronutils.model.CronType.QUARTZ;
 
 @Component
 public class SeedAnuQuantumRNG implements SeedInterface {
@@ -26,23 +33,24 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
     private final Logger log = LoggerFactory.getLogger(SeedAnuQuantumRNG.class);
 
-    private CronExpression expression;
-
     final private String xapiKey;
+    private final ExecutionTime executionTime;
 
     @Autowired
     public SeedAnuQuantumRNG(RestTemplate restTemplate, Environment env){
 
-        String tmp = env.getProperty("anu.quantum.cron");
+        CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(QUARTZ);
+        CronParser parser = new CronParser(cronDefinition);
+        String expression = env.getProperty("anu.quantum.cron");
+
+        Cron parsedQuartzCronExpression = parser.parse(expression);
+
+        parsedQuartzCronExpression.validate();
+
+        this.executionTime = ExecutionTime.forCron(parsedQuartzCronExpression);
+
         this.restTemplate = restTemplate;
         this.xapiKey = env.getProperty("x-api-key");
-
-        if(tmp!=null && !tmp.equals("") && !tmp.equals("false")){
-            try {
-                this.expression = new CronExpression(tmp);
-            } catch (ParseException e) {
-            }
-        }
     }
 
     @Override
@@ -54,11 +62,11 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-        Instant now= Instant.now();
+        Instant now= getNow();
         int hour = now.atZone(ZoneOffset.UTC).getHour();
         int minute = now.atZone(ZoneOffset.UTC).getMinute();
 
-        if(expression!=null && xapiKey!=null && expression.isSatisfiedBy(Date.from(now))){
+        if(executionTime.isMatch(now.atZone(ZoneId.of("UTC")))){
 
             log.info("getting anu seed at {}",now);
 
@@ -79,5 +87,9 @@ public class SeedAnuQuantumRNG implements SeedInterface {
         }
         return new SeedSourceDto(now.toString(), "https://quantumnumbers.anu.edu.au/",
                 "", DESCRIPTION, SeedAnuQuantumRNG.class);
+    }
+
+    public Instant getNow(){
+        return Instant.now();
     }
 }
