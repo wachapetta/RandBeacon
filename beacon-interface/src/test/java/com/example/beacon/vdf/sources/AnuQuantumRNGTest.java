@@ -81,6 +81,17 @@ public class AnuQuantumRNGTest {
         Assert.assertTrue(executionTime.isMatch(time.atZone(ZoneId.of("UTC"))));
 
 
+        instantExpected = "2014-12-22T07:53:59Z";
+        time = Instant.parse(instantExpected);
+
+        Assert.assertFalse(executionTime.isMatch(time.atZone(ZoneId.of("UTC"))));
+
+        instantExpected = "2014-12-22T23:57:00Z";
+        time = Instant.parse(instantExpected);
+
+        Assert.assertFalse(executionTime.isMatch(time.atZone(ZoneId.of("UTC"))));
+
+
     }
 
 }
