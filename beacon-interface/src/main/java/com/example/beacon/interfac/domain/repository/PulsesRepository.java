@@ -5,7 +5,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
@@ -40,7 +39,7 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
     List<PulseEntity> skiplistByYears(ZonedDateTime anchor, ZonedDateTime target);
 
 
-    String completeSkipListQuery = ""+
+    String fullSkipList = ""+
             "select * from "+
                     "( "+
                             "SELECT distinct * from pulse p where p.time_stamp> ?2 AND p.time_stamp< ?1 AND  p.time_stamp < ?6 "+
@@ -55,11 +54,11 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
                     ") p order by p.time_stamp";
 
 
-    @Query(value = completeSkipListQuery, nativeQuery = true)
-    List<PulseEntity> getSkiplist(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextYear,ZonedDateTime nextMonth,ZonedDateTime nextDay, ZonedDateTime nextHour, Pageable pageable);
+    @Query(value = fullSkipList, nativeQuery = true)
+    List<PulseEntity> getFullSkiplist(ZonedDateTime anchor, ZonedDateTime target, ZonedDateTime nextYear, ZonedDateTime nextMonth, ZonedDateTime nextDay, ZonedDateTime nextHour, Pageable pageable);
 
 
-    String countSkipListQuery = ""+
+    String countFullSkipList = ""+
             "select count(id) from "+
             "( "+
             "SELECT distinct id from pulse p where p.time_stamp> ?2 AND p.time_stamp< ?1 AND  p.time_stamp < ?6 "+
@@ -73,8 +72,8 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
             "SELECT distinct id from pulse p where p.time_stamp > ?2 AND p.time_stamp< ?1 and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
             ") p";
     @Cacheable(value = "countSkipLists",key = "#anchor.toInstant().toEpochMilli().toString()+#target.toInstant().toEpochMilli().toString()")
-    @Query(value = countSkipListQuery, nativeQuery = true)
-    Integer countSkiplist(ZonedDateTime anchor, ZonedDateTime target,ZonedDateTime nextYear,ZonedDateTime nextMonth,ZonedDateTime nextDay, ZonedDateTime nextHour);
+    @Query(value = countFullSkipList, nativeQuery = true)
+    Integer countFullSkiplist(ZonedDateTime anchor, ZonedDateTime target, ZonedDateTime nextYear, ZonedDateTime nextMonth, ZonedDateTime nextDay, ZonedDateTime nextHour);
 
 
 

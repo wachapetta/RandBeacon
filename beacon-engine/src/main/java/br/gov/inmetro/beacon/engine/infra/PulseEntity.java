@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "pulse", uniqueConstraints = @UniqueConstraint(columnNames = { "timeStamp", "chainIndex" }))
+@Table(name = "pulse", uniqueConstraints = @UniqueConstraint(columnNames = { "timeStamp", "chainIndex" }),indexes = {@Index(columnList = "timeStamp, chainIndex"),@Index(columnList = "pulseIndex, chainIndex")})
 public class PulseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

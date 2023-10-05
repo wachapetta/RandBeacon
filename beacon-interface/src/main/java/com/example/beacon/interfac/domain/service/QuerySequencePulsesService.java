@@ -58,9 +58,9 @@ public class QuerySequencePulsesService {
         int pageIndex = offset / limit;
         Pageable page = PageRequest.of(pageIndex,limit);
 
-        int countSkipList = pulsesRepository.countSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour);
+        int countSkipList = pulsesRepository.countFullSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour);
 
-        sequence.addAll(pulsesRepository.getSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour,page));
+        sequence.addAll(pulsesRepository.getFullSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour,page));
 
         sequence.forEach(entity -> dtos.add(new PulseDto(entity)));
 
@@ -91,6 +91,16 @@ public class QuerySequencePulsesService {
         pagedResponseDto.setTotalCount(countSkipList);
 
         return pagedResponseDto;
+    }
+
+    @Transactional
+    public PagedResponseDto skiplist(ZonedDateTime anchor, ZonedDateTime target, int offset, int limit,int chain){
+        return null;
+    }
+
+    @Transactional
+    public PagedResponseDto skiplist(Long anchorId, Long targetId, int offset, int limit,Long chain){
+        return null;
     }
 
 }
