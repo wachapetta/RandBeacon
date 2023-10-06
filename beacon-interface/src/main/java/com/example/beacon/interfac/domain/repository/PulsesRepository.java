@@ -76,6 +76,48 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
     Integer countFullSkiplist(ZonedDateTime anchor, ZonedDateTime target, ZonedDateTime nextYear, ZonedDateTime nextMonth, ZonedDateTime nextDay, ZonedDateTime nextHour);
 
 
+    String countskipListByChain = ""+
+            "select count(id) from "+
+            "( "+
+            "SELECT id from pulse p where p.pulse_index =  ?2 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.pulse_index> ?2 AND p.pulse_index < ?1 AND  p.time_stamp < ?6  AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and  p.time_stamp < ?5 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and  p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and  p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT id from pulse p where p.pulse_index =  ?1 AND p.chain_index=?7 "+
+            ") p";
+    @Cacheable(value = "countSkipListsByChainAndIndexes",key = "#anchorIdx.toString()+\":\"+#targetIdx.toString()+\":\"+#chainIdx.toString()")
+    @Query(value = countskipListByChain, nativeQuery = true)
+    Integer countSkiplistByChain(Long anchorIdx, Long targetIdx, ZonedDateTime nextYear, ZonedDateTime nextMonth, ZonedDateTime nextDay, ZonedDateTime nextHour,Integer chainIdx);
+
+
+    String skipListByChainAndIndex = ""+
+            "select * from "+
+            "( "+
+            "SELECT * from pulse p where p.pulse_index =  ?2 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct * from pulse p where p.pulse_index> ?2 AND p.pulse_index< ?1 AND  p.time_stamp < ?6 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and  p.time_stamp < ?5 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and  p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and  p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.pulse_index< ?1 and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "union "+
+            "SELECT * from pulse p where p.pulse_index =  ?1 AND p.chain_index=?7 "+
+            ") p order by p.time_stamp";
+
+    @Query(value = skipListByChainAndIndex, nativeQuery = true)
+    List<PulseEntity> getSkiplistByChainAndIndex(Long anchorIdx, Long targetIdx, ZonedDateTime nextYear, ZonedDateTime nextMonth, ZonedDateTime nextDay, ZonedDateTime nextHour, Long chainIdx, Pageable pageable);
 
 
 }

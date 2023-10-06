@@ -88,4 +88,25 @@ public class PulsesRepositoryImpl implements PulsesQueries {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PulseEntity findByTimestampAndChain(ZonedDateTime timeStamp, Long chain) {
+        try {
+            PulseEntity pulseEntity = (PulseEntity) manager
+                    .createQuery("from PulseEntity p " +
+                            "where p.timeStamp = :timeStamp and p.chainIndex= :chain")
+                    .setParameter("timeStamp", timeStamp)
+                    .setParameter("chain",chain)
+                    .getSingleResult();
+            return pulseEntity;
+        } catch (RuntimeException e){
+            e.printStackTrace();
+            return null;
+        }catch (Throwable t){
+            t.printStackTrace();
+            return null;
+        }
+
+
+    }
 }

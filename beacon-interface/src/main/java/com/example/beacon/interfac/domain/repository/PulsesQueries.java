@@ -9,4 +9,5 @@ public interface PulsesQueries {
     PulseEntity first(Long chain);
     PulseEntity findByChainAndPulseIndex(Long chainIndex, Long pulseIndex);
     PulseEntity findByTimestamp(ZonedDateTime timeStamp);
+    PulseEntity findByTimestampAndChain(ZonedDateTime timeStamp,Long chain);
 }
