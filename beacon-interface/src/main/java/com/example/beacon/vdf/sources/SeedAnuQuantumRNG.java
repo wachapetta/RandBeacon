@@ -16,11 +16,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Date;
 
 import static com.cronutils.model.CronType.QUARTZ;
 
@@ -62,11 +60,9 @@ public class SeedAnuQuantumRNG implements SeedInterface {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-        Instant now= getNow();
-        int hour = now.atZone(ZoneOffset.UTC).getHour();
-        int minute = now.atZone(ZoneOffset.UTC).getMinute();
+        ZonedDateTime now= ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC"));
 
-        if(executionTime.isMatch(now.atZone(ZoneId.of("UTC")))){
+        if(executionTime.isMatch(now)){
 
             log.info("getting anu seed at {}",now);
 
@@ -89,7 +85,4 @@ public class SeedAnuQuantumRNG implements SeedInterface {
                 "", DESCRIPTION, SeedAnuQuantumRNG.class);
     }
 
-    public Instant getNow(){
-        return Instant.now();
-    }
 }
