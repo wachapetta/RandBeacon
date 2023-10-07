@@ -145,7 +145,7 @@ public class QuerySequencePulsesService {
         String previous=countSkipList<limit || previousIndex<0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorId="+ anchor.getPulseIndex()+"&targetId="+target.getPulseIndex()+"&chainId="+target.getChainIndex()+"&offset="+ previousIndex * limit +"&limit="+limit;
         String next= nextIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorId="+ anchor.getPulseIndex()+"&targetId="+target.getPulseIndex()+"&chainId="+target.getChainIndex()+"&offset="+ nextIndex * limit +"&limit="+limit;
 
-        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorId"+ anchor.getPulseIndex()+"&targetId="+target.getPulseIndex()+"&chainId="+target.getChainIndex()+"&offset="+ lastPage +"&limit="+limit;
+        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorId="+ anchor.getPulseIndex()+"&targetId="+target.getPulseIndex()+"&chainId="+target.getChainIndex()+"&offset="+ lastPage* limit +"&limit="+limit;
 
         Map<String,String> links = new LinkedHashMap<>();
         links.put("first", first);
