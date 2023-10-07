@@ -100,13 +100,7 @@ public class PulsesRepositoryImpl implements PulsesQueries {
                     .getSingleResult();
             return pulseEntity;
         } catch (RuntimeException e){
-            e.printStackTrace();
-            return null;
-        }catch (Throwable t){
-            t.printStackTrace();
             return null;
         }
-
-
     }
 }

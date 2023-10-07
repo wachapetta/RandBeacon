@@ -102,13 +102,13 @@ public class QuerySequencePulsesService {
             PulseEntity target = pulsesRepository.findByTimestampAndChain(targetTime.truncatedTo(ChronoUnit.MINUTES).truncatedTo(ChronoUnit.SECONDS).truncatedTo(ChronoUnit.MILLIS),chain);
 
             if (anchor == null && target == null)
-                throw new BadRequestException("There is no pulse at searched timestamps and chain");
+                throw new BadRequestException("There is no pulse at searched timestamps in this chain");
 
             if (target == null)
-                throw new BadRequestException("There is no pulse at the target timestamp and chain");
+                throw new BadRequestException("There is no pulse at the target timestamp in this chain");
 
             if (anchor == null)
-                throw new BadRequestException("There is no pulse at the anchor timestamp chain");
+                throw new BadRequestException("There is no pulse at the anchor timestamp in this chain");
 
             return skiplist(anchor.getPulseIndex(), target.getId(), offset,limit,chain);
 
@@ -117,8 +117,8 @@ public class QuerySequencePulsesService {
     @Transactional(readOnly = true)
     public PagedResponseDto skiplist(Long anchorId, Long targetId, int offset, int limit,long chain){
 
-        PulseEntity anchor  = pulsesRepository.getOne(anchorId);
-        PulseEntity target = pulsesRepository.getOne(targetId);
+        PulseEntity anchor  = pulsesRepository.findByChainAndPulseIndex(chain,anchorId);
+        PulseEntity target = pulsesRepository.findByChainAndPulseIndex(chain, targetId);
 
         if(anchor == null && target == null)
             throw new BadRequestException("There is no pulse at searched pulse ids and chain");
@@ -140,7 +140,7 @@ public class QuerySequencePulsesService {
         int pageIndex = offset / limit;
         Pageable page = PageRequest.of(pageIndex,limit);
 
-        long countSkipList = pulsesRepository.countSkiplistByChain(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour, (int) target.getChainIndex());
+        long countSkipList = pulsesRepository.countSkiplistByChain(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour, target.getChainIndex());
 
         sequence.addAll(pulsesRepository.getSkiplistByChainAndIndex(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour, target.getChainIndex(),page));
 
