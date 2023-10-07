@@ -8,73 +8,75 @@ import com.cronutils.parser.CronParser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import org.mockito.invocation.InvocationOnMock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.Environment;
 
+import org.springframework.core.env.Profiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static com.cronutils.model.CronType.QUARTZ;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-
-
-//@PrepareForTest( {DateUtil.class})
 @RunWith(SpringRunner.class)
 @TestPropertySource(properties = {"anu.quantum.cron = * 54-56 7,15,23 * * ? *"})
 public class AnuQuantumRNGTest {
 
-    @Autowired
-    public Environment env;
+
+    public Environment env = new AbstractEnvironment() {
+
+        public String getProperty(String key) {
+
+            Instant now = Instant.now();
+            String expression = "* {0} {1} * * ? *";
+            ZonedDateTime zonedNow = now.atZone(ZoneId.of("UTC"));
+
+            String minutes = String.valueOf(zonedNow.getMinute())+","+String.valueOf(zonedNow.getMinute()+1);
+            if(key == "anu.quantum.cron") {
+                expression = expression.replace("{0}",minutes);
+                expression = expression.replace("{1}",String.valueOf(zonedNow.getHour()));
+                return expression;
+            }
+
+            return System.getenv(key);
+        }
+
+    };
 
     @Test
-    public void testAnuQuantum() throws NoSuchFieldException, IllegalAccessException {
+    public void testAnuQuantum() {
         /*String instantExp = "2024-12-22T07:54:00Z";
         ZonedDateTime ti1 = ZonedDateTime.parse(instantExp);
         mockStatic(DateUtil.class);
         when(DateUtil.now()).thenReturn(ti1);*/
 
-        Clock.systemDefaultZone();
-
         RestTemplate restTemplate = new RestTemplate();
 
-        SeedAnuQuantumRNG obj = Mockito.mock(SeedAnuQuantumRNG.class);
+        SeedAnuQuantumRNG obj = new SeedAnuQuantumRNG(restTemplate, env);
+        SeedSourceDto result = obj.getSeed();
+
+        System.out.println(result.getSeed()+" "+result.getUri());
 
         CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(QUARTZ);
         CronParser parser = new CronParser(cronDefinition);
-        String expression = "* 54,55,56 7,15,23 * * ? *";
+        String expression = "* 54-56 7,15,23 * * ? *";
 
         Cron parsedQuartzCronExpression = parser.parse(expression);
 
         parsedQuartzCronExpression.validate();
 
         ExecutionTime executionTime = ExecutionTime.forCron(parsedQuartzCronExpression);
-
-        ReflectionTestUtils.setField(obj,"executionTime",executionTime);
-
-        //when(obj.getNow()).thenReturn(ZonedDateTime.now());
-
-        when(obj.getSeed()).then(InvocationOnMock::callRealMethod);
-
-
-        SeedSourceDto seed = obj.getSeed();
-
-        System.out.println(seed.getSeed());
 
         String instantExpected = "2024-12-22T07:54:00Z";
         Instant time = Instant.parse(instantExpected);
