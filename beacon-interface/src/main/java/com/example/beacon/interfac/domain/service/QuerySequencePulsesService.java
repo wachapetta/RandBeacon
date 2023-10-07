@@ -29,21 +29,6 @@ public class QuerySequencePulsesService {
 
     }
 
-    public List<PulseDto> sequence(ZonedDateTime timeStamp1, ZonedDateTime timeStamp2){
-        long fiveDays = 7200;
-        long between = ChronoUnit.MINUTES.between(timeStamp1, timeStamp2);
-
-        if (between > fiveDays){
-            throw new BadRequestException("Maximum pulses per request: 7200");
-        }
-
-        List<PulseDto> dtos = new ArrayList<>();
-        List<PulseEntity> sequence = pulsesRepository.findSequence(timeStamp1, timeStamp2);
-        sequence.forEach(entity -> dtos.add(new PulseDto(entity)));
-        return dtos;
-    }
-
-
     @Transactional(readOnly = true)
     public PagedResponseDto skiplist(ZonedDateTime anchor, ZonedDateTime target, int offset, int limit){
 
@@ -67,7 +52,7 @@ public class QuerySequencePulsesService {
         PagedResponseDto pagedResponseDto = new PagedResponseDto(dtos);
 
         String version = env.getProperty("beacon.url.version");
-        String first = env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli();
+        String first = env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time/"+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli();
 
 
         int previousIndex = pageIndex - 1;
@@ -75,12 +60,12 @@ public class QuerySequencePulsesService {
 
         int lastPage = (int) Math.ceil(countSkipList / limit);
 
-        String previous=countSkipList<limit || previousIndex<0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ previousIndex * limit +"&limit="+limit;
-        String next= nextIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ nextIndex * limit +"&limit="+limit;
+        String previous=countSkipList<limit || previousIndex<0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time="+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ previousIndex * limit +"&limit="+limit;
+        String next= nextIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time="+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ nextIndex * limit +"&limit="+limit;
 
-        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist?anchorTime="+ anchor.toInstant().toEpochMilli()+"&targetTime="+target.toInstant().toEpochMilli()+"&offset="+ lastPage +"&limit="+limit;
+        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time="+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ lastPage +"&limit="+limit;
 
-        Map<String,String> links = new LinkedHashMap<String,String>();
+        Map<String,String> links = new LinkedHashMap<>();
         links.put("first", first);
         links.put("previous",previous);
         links.put("next",next);
@@ -110,7 +95,7 @@ public class QuerySequencePulsesService {
             if (anchor == null)
                 throw new BadRequestException("There is no pulse at the anchor timestamp in this chain");
 
-            return skiplist(anchor.getPulseIndex(), target.getId(), offset,limit,chain);
+            return skiplist(anchor.getPulseIndex(), target.getPulseIndex(), offset,limit,chain);
 
     }
 

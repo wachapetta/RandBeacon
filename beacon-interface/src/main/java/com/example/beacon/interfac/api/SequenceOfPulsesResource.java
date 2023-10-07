@@ -85,7 +85,7 @@ public class SequenceOfPulsesResource {
                 ZonedDateTime anchorT = DateUtil.longToLocalDateTime(anchorTime);
                 ZonedDateTime targetT = DateUtil.longToLocalDateTime(targetTime);
 
-                return skiplist(offset, limit, chainId, targetT, anchorT);
+                return skiplist(anchorT,targetT, offset, limit, chainId);
 
             }
 
@@ -94,24 +94,24 @@ public class SequenceOfPulsesResource {
                 long anchorIdx = Long.parseLong(anchorId);
                 long targetIdx = Long.parseLong(targetId);
 
-                return skiplist(offset, limit, chainId, anchorIdx, targetIdx);
+                return skiplist(anchorIdx, targetIdx,offset, limit, chainId);
             }
         }catch (BadRequestException b){
             return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,b.getMessage());
         }
 
-        return skypList(targetTime,anchorTime,offset, limit);
+        return skypList(anchorTime,targetTime,offset, limit);
 
     }
 
-    private ResponseEntity skiplist(int offset, int limit, long chain, ZonedDateTime targetT, ZonedDateTime anchorT) {
-        PagedResponseDto skipList = querySequencePulsesService.skiplist(targetT, anchorT, offset, limit, chain);
+    private ResponseEntity skiplist(ZonedDateTime anchorT,ZonedDateTime targetT, int offset, int limit, long chain) {
+        PagedResponseDto skipList = querySequencePulsesService.skiplist(anchorT,targetT, offset, limit, chain);
 
         return new ResponseEntity(skipList, HttpStatus.OK);
     }
 
-    private ResponseEntity skiplist(int offset, int limit, long chain, long targetId, long anchorId) {
-        PagedResponseDto skipList = querySequencePulsesService.skiplist(targetId, anchorId, offset, limit, chain);
+    private ResponseEntity skiplist(long anchorId,long targetId,int offset, int limit, long chain) {
+        PagedResponseDto skipList = querySequencePulsesService.skiplist(anchorId,targetId, offset, limit, chain);
 
         return new ResponseEntity(skipList, HttpStatus.OK);
     }
