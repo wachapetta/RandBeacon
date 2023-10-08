@@ -43,6 +43,8 @@ public class SequenceOfPulsesResource {
             ZonedDateTime startTime = DateUtil.longToLocalDateTime(startTimestamp);
             ZonedDateTime endTime = DateUtil.longToLocalDateTime(endTimestamp);
 
+            if(endTime.isBefore(startTime))
+                return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,"Anchor timestamp is before target timestamp.");
 
             PagedResponseDto skipList = querySequencePulsesService.skiplist(endTime, startTime,offset,limit);
 
@@ -84,6 +86,9 @@ public class SequenceOfPulsesResource {
             if (anchorTime != null && targetTime != null) {
                 ZonedDateTime anchorT = DateUtil.longToLocalDateTime(anchorTime);
                 ZonedDateTime targetT = DateUtil.longToLocalDateTime(targetTime);
+
+                if(anchorT.isBefore(targetT))
+                    return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,"Anchor timestamp is before target timestamp.");
 
                 return skiplist(anchorT,targetT, offset, limit, chainId);
 
