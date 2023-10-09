@@ -54,7 +54,7 @@
 
   <header class="bg-primary text-white">
     <div class="container text-center">
-      <h1>Inmetro Randomness Beacon</h1>
+      <h1>Inmetro's Randomness Beacon</h1>
 <!--      <p class="lead">A landing page template freshly redesigned for Bootstrap 4</p>-->
       <p class="lead">Inmetro's Randomness Beacon is a web service, part of the  SICCCiber project's effort to generate reliable and public sources of random numbers</p>
 
@@ -115,9 +115,9 @@
           <br><br>
 
           <strong>Last Available Pulse:</strong><br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/pulse/last</span><br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/pulse</span><br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/pulse/last}" th:text="|${uri}/beacon/2.0/pulse/last|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/pulse/last}" th:text="|${uri}/beacon/2.0/pulse|"></a>
           </span>
 
           <br><br>
@@ -125,28 +125,46 @@
           <strong>First Pulse of the first Chain:</strong><br>
               <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/chain/1/pulse/1</span><br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/chain/1/pulse/1}" th:text="|${uri}//beacon/2.0/chain/1/pulse/1|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/chain/1/pulse/1}" th:text="|${uri}/beacon/2.0/chain/1/pulse/1|"></a>
           </span>
 
           <br><br>
 
-          <strong>Pulse &lt;pulseIndex&gt; in chain &lt;chainIndex&gt;:</strong> <br>
+          <strong>Pulse &lt;pulseIndex&gt; in the chain &lt;chainIndex&gt;:</strong> <br>
               <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/chain/&lt;chainIndex&gt;/pulse/&lt;pulseIndex&gt;</span> <br>
-          <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/chain/1/pulse/} + ${pulseIndexPrevious}" th:text="|${uri}//beacon/2.0/chain/1/pulse/${pulseIndexPrevious}|"></a>
+          <span th:if="${pulseIndexPrevious!=null}">
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/chain/}+${chain}+@{/pulse/}+${pulseIndexPrevious}" th:text="|${uri}/beacon/2.0/chain/${chain}/pulse/${pulseIndexPrevious}|"></a>
           </span>
 
          <br><br>
 
-         <strong>Sequence of Pulses: </strong><br>
+         <strong>Sequence of Pulses  between two Timestamps: </strong><br>
          <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist/time/&lt;startTimestamp&gt;/&lt;endTimestamp&gt;</span><br>
          <span th:if="${timestampPrevious!=null}">
          Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist/time/} + ${timestampPrevious} + @{/} + ${timestampCurrent}"
-                     th:text="@{beacon/2.0/skiplist/time/} + ${timestampPrevious} + @{/} + ${timestampCurrent}"></a>
+                     th:text="@{beacon/2.0/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"></a>
          </span>
 
          <br><br>
-          If a request for a Pulse results in no Pulse found, a 404 response is returned. <br>
+
+         <strong>Short Sequence of Pulses in a chain according to an anchor and target pulses based on their timestamps: </strong><br>
+         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
+         <span th:if="${timestampPrevious!=null}">
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?targetTime=} + ${timestampPrevious} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"
+                     th:text="@{beacon/2.0/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"></a>
+         </span>
+
+         <br><br>
+
+         <strong>Short Sequence of Pulses in a chain according to an anchor and target pulses based on their indexes: </strong><br>
+         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
+         <span th:if="${timestampPrevious!=null}">
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?anchorId=} + ${firstId} + @{&targetId=} + ${currentId} + @{&chainId=} +${chain}"
+                     th:text="@{beacon/2.0/skiplist?anchorId=} + ${firstId} + @{&targetId=} + ${currentId} + @{&chainId=} +${chain}"></a>
+         </span>
+
+         <br><br>
+          If a request for a Pulse results in no found Pulse, a 404 response is returned.<br>
           </p>
         </div>
       </div>
