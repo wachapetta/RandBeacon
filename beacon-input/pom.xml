@@ -95,6 +95,10 @@
 				<configuration>
                 <container>
                     <mainClass> br.gov.inmetro.beacon.input.BeaconInputApplication</mainClass>
+					<environment>
+						<RDS_HOSTNAME>host.docker.internal</RDS_HOSTNAME>
+						<BEACON_RABBIT_HOSTNAME>172.17.0.2</BEACON_RABBIT_HOSTNAME>
+					</environment>
                 </container>
             </configuration>
 			</plugin>
