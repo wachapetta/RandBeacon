@@ -172,6 +172,9 @@
 						<BEACON_X509_CERTIFICATE>/beacon/configFiles/beacon.cer</BEACON_X509_CERTIFICATE>
 						<BEACON_X509_PRIVATEKEY>/beacon/configFiles/beacon-priv.pem</BEACON_X509_PRIVATEKEY>
 					</environment>
+					<ports>
+						<port>8080</port>
+					</ports>
                 </container>
 				<extraDirectories>
 					<paths>
