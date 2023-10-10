@@ -141,7 +141,7 @@
          <strong>Sequence of Pulses  between two Timestamps: </strong><br>
          <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist/time/&lt;startTimestamp&gt;/&lt;endTimestamp&gt;</span><br>
          <span th:if="${timestampPrevious!=null}">
-         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist/time/} + ${timestampPrevious} + @{/} + ${timestampCurrent}"
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"
                      th:text="@{beacon/2.0/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"></a>
          </span>
 
@@ -150,7 +150,7 @@
          <strong>Short Sequence of Pulses in a chain according to an anchor and target pulses based on their timestamps: </strong><br>
          <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
          <span th:if="${timestampPrevious!=null}">
-         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?targetTime=} + ${timestampPrevious} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"
                      th:text="@{beacon/2.0/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"></a>
          </span>
 
@@ -159,8 +159,8 @@
          <strong>Short Sequence of Pulses in a chain according to an anchor and target pulses based on their indexes: </strong><br>
          <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
          <span th:if="${timestampPrevious!=null}">
-         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?anchorId=} + ${firstId} + @{&targetId=} + ${currentId} + @{&chainId=} +${chain}"
-                     th:text="@{beacon/2.0/skiplist?anchorId=} + ${firstId} + @{&targetId=} + ${currentId} + @{&chainId=} +${chain}"></a>
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?targetId=} + ${firstId} + @{&anchorId=} + ${currentId} + @{&chainId=} +${chain}"
+                     th:text="@{beacon/2.0/skiplist?targetId=} + ${firstId} + @{&anchorId=} + ${currentId} + @{&chainId=} +${chain}"></a>
          </span>
 
          <br><br>

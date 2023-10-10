@@ -114,6 +114,9 @@ public class QuerySequencePulsesService {
         if(anchor == null)
             throw new BadRequestException("There is no pulse at the anchor pulse id and chain");
 
+        if(anchorId<targetId)
+            throw new BadRequestException("anchorId must be greater than targetId");
+
         ZonedDateTime nextYear =  target.getTimeStamp().with(TemporalAdjusters.firstDayOfNextYear()).withHour(0).withMinute(0).withSecond(0).withNano(0);
         ZonedDateTime nextMonth = target.getTimeStamp().with(TemporalAdjusters.firstDayOfNextMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
         ZonedDateTime nextDay = target.getTimeStamp().plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
