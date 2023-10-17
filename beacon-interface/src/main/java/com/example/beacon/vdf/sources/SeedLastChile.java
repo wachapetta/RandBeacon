@@ -27,7 +27,7 @@ public class SeedLastChile implements SeedInterface {
     public SeedSourceDto getSeed() {
 //        RestTemplate restTemplate = new RestTemplate();
         try {
-            BeaconRemoteDto lastPulse = restTemplate.getForObject("https://random.uchile.cl/beacon/2.0-beta1/pulse?last", BeaconRemoteDto.class);
+            BeaconRemoteDto lastPulse = restTemplate.getForObject("https://random.uchile.cl/beacon/2.1-beta/pulse", BeaconRemoteDto.class);
             return new SeedSourceDto(Instant.now().toString(), lastPulse.getUri(),
                     lastPulse.getPrecommitmentValue(), DESCRIPTION, SeedLastChile.class);
         }catch (Exception e ){
