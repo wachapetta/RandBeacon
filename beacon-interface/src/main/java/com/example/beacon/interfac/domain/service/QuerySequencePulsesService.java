@@ -34,7 +34,7 @@ public class QuerySequencePulsesService {
         long between = ChronoUnit.MINUTES.between(timeStamp1, timeStamp2);
 
         if (between > fiveDays){
-            throw new BadRequestException("Maximum pulses per request: 7200");
+            throw new BadRequestException("Maximum pulses per request: 7200. Try the API version 2.1!");
         }
 
         List<PulseDto> dtos = new ArrayList<>();
