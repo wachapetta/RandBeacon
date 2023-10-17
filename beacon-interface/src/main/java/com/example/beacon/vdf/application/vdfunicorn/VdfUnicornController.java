@@ -19,14 +19,11 @@ public class VdfUnicornController implements WebMvcConfigurer {
 
     private final VdfUnicornService vdfUnicornService;
 
-    private final VdfUnicornRepository vdfUnicornRepository;
-
     private final SmartValidator validator;
 
     @Autowired
     public VdfUnicornController(VdfUnicornService vdfUnicornService, VdfUnicornRepository vdfUnicornRepository, SmartValidator validator) {
         this.vdfUnicornService = vdfUnicornService;
-        this.vdfUnicornRepository = vdfUnicornRepository;
         this.validator = validator;
     }
 

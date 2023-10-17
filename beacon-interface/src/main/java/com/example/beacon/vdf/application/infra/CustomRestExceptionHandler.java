@@ -38,7 +38,7 @@ public class CustomRestExceptionHandler implements ErrorController {
     public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
 
         log.error(ex.getClass().getName());
-        log.error(ex.toString());
+        log.error(ex.getMessage());
 
         if (ex instanceof NoHandlerFoundException) {
 
