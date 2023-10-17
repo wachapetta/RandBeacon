@@ -29,6 +29,20 @@ public class QuerySequencePulsesService {
 
     }
 
+    public List<PulseDto> sequence(ZonedDateTime timeStamp1, ZonedDateTime timeStamp2){
+        long fiveDays = 7200;
+        long between = ChronoUnit.MINUTES.between(timeStamp1, timeStamp2);
+
+        if (between > fiveDays){
+            throw new BadRequestException("Maximum pulses per request: 7200");
+        }
+
+        List<PulseDto> dtos = new ArrayList<>();
+        List<PulseEntity> sequence = pulsesRepository.findSequence(timeStamp1, timeStamp2);
+        sequence.forEach(entity -> dtos.add(new PulseDto(entity)));
+        return dtos;
+    }
+
     @Transactional(readOnly = true)
     public PagedResponseDto skiplist(ZonedDateTime anchor, ZonedDateTime target, int offset, int limit){
 

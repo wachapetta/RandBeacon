@@ -17,7 +17,7 @@ import java.util.Map;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
-@RequestMapping(value = "/beacon/2.0/pulse", produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/beacon/2.0/pulse","/beacon/2.1/pulse"}, produces= MediaType.APPLICATION_JSON_VALUE)
 public class SinglePulseResource {
 
     private final QuerySinglePulsesService singlePulsesService;

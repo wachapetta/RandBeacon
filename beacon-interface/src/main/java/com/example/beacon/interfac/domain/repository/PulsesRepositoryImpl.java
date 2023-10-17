@@ -8,6 +8,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,5 +104,32 @@ public class PulsesRepositoryImpl implements PulsesQueries {
         } catch (RuntimeException e){
             return null;
         }
+    }
+
+    List<PulseEntity> getFullSkiplist(ZonedDateTime anchor, ZonedDateTime target, ZonedDateTime nextYear, ZonedDateTime nextMonth, ZonedDateTime nextDay, ZonedDateTime nextHour, long cursorId, long pageSize){
+
+        String cursorCondition = "";
+        if(cursorId<0)
+            cursorCondition = "AND p.pulse_index >"+ cursorId;
+
+
+        return Collections.unmodifiableList(manager
+                .createNativeQuery("select * from "+
+                        "( "+
+                        "SELECT * from pulse p where p.pulse_index =  :anchor "+ cursorCondition +
+                        "union "+
+                        "SELECT distinct * from pulse p where p.time_stamp> :anchor AND p.time_stamp< :target AND  p.time_stamp < :nextHour "+ cursorCondition+
+                        "union "+
+                        "SELECT distinct * from pulse p where p.time_stamp > :anchor AND p.time_stamp< :target and  p.time_stamp < :nextDay and minute(p.time_stamp)=0 "+ cursorCondition +
+                        "union "+
+                        "SELECT distinct * from pulse p where p.time_stamp > :anchor AND p.time_stamp< :target and  p.time_stamp < :nextMonth and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+ cursorCondition +
+                        "union "+
+                        "SELECT distinct * from pulse p where p.time_stamp > :anchor AND p.time_stamp< :target and  p.time_stamp < :nextYear and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+ cursorCondition +
+                        "union "+
+                        "SELECT distinct * from pulse p where p.time_stamp > :anchor AND p.time_stamp< :target and month(p.time_stamp)=1 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+ cursorCondition +
+                        "union "+
+                        "SELECT * from pulse p where p.pulse_index =  :target "+ cursorCondition +
+                        ") p order by p.time_stamp limit "+ pageSize,PulseEntity.class)
+                .getResultList());
     }
 }

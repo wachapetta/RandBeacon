@@ -22,7 +22,7 @@ import static com.example.beacon.vdf.infra.util.DateUtil.getTimeStampFormated;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping(value = {"/beacon/vdf/unicorn","/beacon/2.0/vdf/unicorn"} ,produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/unicorn/beacon/2.0"} ,produces= MediaType.APPLICATION_JSON_VALUE)
 public class VdfUnicornResource {
 
     private final VdfUnicornService vdfUnicornService;

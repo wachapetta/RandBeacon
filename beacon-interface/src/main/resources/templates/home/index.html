@@ -90,77 +90,77 @@
 
           <p>
           <strong>Pulse at a specific time (or next closest):</strong> <br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/pulse/time/&lt;timestamp&gt;</span> <br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/pulse/time/&lt;timestamp&gt;</span> <br>
 
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/pulse/time/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.0/pulse/time/${timestampPrevious}|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.1/pulse/time/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.1/pulse/time/${timestampPrevious}|"></a>
           </span>
 
           <br><br>
 
           <strong>Previous Pulse: </strong> <br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/pulse/time/previous/&lt;timestamp&gt;</span> <br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/pulse/time/previous/&lt;timestamp&gt;</span> <br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/pulse/time/previous/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.0/pulse/time/previous/${timestampPrevious}|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.1/pulse/time/previous/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.1/pulse/time/previous/${timestampPrevious}|"></a>
           </span>
 
           <br><br>
 
           <strong>Next Pulse :</strong><br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/pulse/time/next/&lt;timestamp&gt;</span> <br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/pulse/time/next/&lt;timestamp&gt;</span> <br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/pulse/time/next/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.0/pulse/time/next/${timestampPrevious}|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.1/pulse/time/next/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.1/pulse/time/next/${timestampPrevious}|"></a>
           </span>
 
           <br><br>
 
           <strong>Last Available Pulse:</strong><br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/pulse</span><br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/pulse</span><br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/pulse/last}" th:text="|${uri}/beacon/2.0/pulse|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.1/pulse/last}" th:text="|${uri}/beacon/2.1/pulse|"></a>
           </span>
 
           <br><br>
 
           <strong>First Pulse of the first Chain:</strong><br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/chain/1/pulse/1</span><br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/chain/1/pulse/1</span><br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/chain/1/pulse/1}" th:text="|${uri}/beacon/2.0/chain/1/pulse/1|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.1/chain/1/pulse/1}" th:text="|${uri}/beacon/2.1/chain/1/pulse/1|"></a>
           </span>
 
           <br><br>
 
           <strong>Pulse &lt;pulseIndex&gt; in the chain &lt;chainIndex&gt;:</strong> <br>
-              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/chain/&lt;chainIndex&gt;/pulse/&lt;pulseIndex&gt;</span> <br>
+              <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/chain/&lt;chainIndex&gt;/pulse/&lt;pulseIndex&gt;</span> <br>
           <span th:if="${pulseIndexPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/chain/}+${chain}+@{/pulse/}+${pulseIndexPrevious}" th:text="|${uri}/beacon/2.0/chain/${chain}/pulse/${pulseIndexPrevious}|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/beacon/2.1/chain/}+${chain}+@{/pulse/}+${pulseIndexPrevious}" th:text="|${uri}/beacon/2.1/chain/${chain}/pulse/${pulseIndexPrevious}|"></a>
           </span>
 
          <br><br>
 
          <strong>Sequence of Pulses  between two Timestamps: </strong><br>
-         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist/time/&lt;startTimestamp&gt;/&lt;endTimestamp&gt;</span><br>
+         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/skiplist/time/&lt;startTimestamp&gt;/&lt;endTimestamp&gt;</span><br>
          <span th:if="${timestampPrevious!=null}">
-         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"
-                     th:text="@{beacon/2.0/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"></a>
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.1/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"
+                     th:text="@{beacon/2.1/skiplist/time/} + ${firstTimestamp} + @{/} + ${timestampCurrent}"></a>
          </span>
 
          <br><br>
 
          <strong>Short Sequence of Pulses in a chain according to an anchor and target pulses based on their timestamps: </strong><br>
-         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
+         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
          <span th:if="${timestampPrevious!=null}">
-         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"
-                     th:text="@{beacon/2.0/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"></a>
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.1/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"
+                     th:text="@{beacon/2.1/skiplist?targetTime=} + ${firstTimestamp} + @{&anchorTime=} + ${timestampCurrent} + @{&chainId=} +${chain}"></a>
          </span>
 
          <br><br>
 
          <strong>Short Sequence of Pulses in a chain according to an anchor and target pulses based on their indexes: </strong><br>
-         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
+         <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.1/skiplist?anchorTime=&lt;startTimestamp&gt;&targetTime=&lt;endTimestamp&gt;&chainId=<chainId></span><br>
          <span th:if="${timestampPrevious!=null}">
-         Example: <a style="word-break: break-word" th:href="@{beacon/2.0/skiplist?targetId=} + ${firstId} + @{&anchorId=} + ${currentId} + @{&chainId=} +${chain}"
-                     th:text="@{beacon/2.0/skiplist?targetId=} + ${firstId} + @{&anchorId=} + ${currentId} + @{&chainId=} +${chain}"></a>
+         Example: <a style="word-break: break-word" th:href="@{beacon/2.1/skiplist?targetId=} + ${firstId} + @{&anchorId=} + ${currentId} + @{&chainId=} +${chain}"
+                     th:text="@{beacon/2.1/skiplist?targetId=} + ${firstId} + @{&anchorId=} + ${currentId} + @{&chainId=} +${chain}"></a>
          </span>
 
          <br><br>

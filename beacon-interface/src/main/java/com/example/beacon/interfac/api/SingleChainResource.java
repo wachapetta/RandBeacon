@@ -15,7 +15,7 @@ import java.util.Map;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
-@RequestMapping(value = "/beacon/2.0/chain/{chainIndex}/pulse", produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/beacon/2.0/chain/{chainIndex}/pulse","/beacon/2.1/chain/{chainIndex}/pulse",}, produces= MediaType.APPLICATION_JSON_VALUE)
 public class SingleChainResource {
 
     private SinglePulseResource singlePulseResource;

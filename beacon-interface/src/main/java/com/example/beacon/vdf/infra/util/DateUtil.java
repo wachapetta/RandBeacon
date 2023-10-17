@@ -32,6 +32,16 @@ public class DateUtil {
         return localDateTime;
     }
 
+    public static ZonedDateTime longToExactDateTime(String data){
+        Long millis = Long.parseLong(data);
+        if (data.length() == 10){
+            millis = millis*1000;
+        }
+        ZonedDateTime localDateTime = Instant.ofEpochMilli(millis).atZone(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS);
+
+        return localDateTime;
+    }
+
 
     public static String getTimeStampFormated(ZonedDateTime timestamp){
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");

@@ -19,7 +19,7 @@ import java.time.format.DateTimeParseException;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
-@RequestMapping(value = "/beacon/2.0/combination/", produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/combination/beacon/2.0/","/beacon/2.0/combination"}, produces= MediaType.APPLICATION_JSON_VALUE)
 public class CombinationResource {
 
     private final CombinationRepository combinationRepository;
@@ -83,7 +83,7 @@ public class CombinationResource {
     @ResponseBody
     public ResponseEntity next(@PathVariable String timeStamp){
         try {
-            ZonedDateTime zonedDateTime = DateUtil.longToLocalDateTime(timeStamp);
+            ZonedDateTime zonedDateTime = DateUtil.longToExactDateTime(timeStamp);
             CombinationEntity next = combinationRepository.findNext(zonedDateTime);
 
             if (next==null){

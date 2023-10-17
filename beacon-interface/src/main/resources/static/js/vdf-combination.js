@@ -4,7 +4,7 @@ $(document).ready(function() {
 
 function getLastPulseReloadPage() {
     $.ajax({
-        url: "/beacon/2.0/combination/last",
+        url: "/combination/beacon/2.0/last",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -16,7 +16,7 @@ function getLastPulseReloadPage() {
 
 function getLastPulse() {
     $.ajax({
-        url: "/beacon/2.0/combination/last",
+        url: "/combination/beacon/2.0/last",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -31,7 +31,7 @@ function getLastPulse() {
 
 function getFirstPulse() {
     $.ajax({
-        url: "/beacon/2.0/combination/first",
+        url: "/combination/beacon/2.0/first",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -46,7 +46,7 @@ function getFirstPulse() {
 
 function getPreviousPulse() {
     $.ajax({
-        url: "/beacon/2.0/combination/previous/" + new Date(document.getElementById("input-datetime").value).getTime() ,
+        url: "/combination/beacon/2.0/previous/" + new Date(document.getElementById("input-datetime").value).getTime() ,
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -61,7 +61,7 @@ function getPreviousPulse() {
 
 function getNextPulse() {
     $.ajax({
-        url: "/beacon/2.0/combination/next/" + new Date(document.getElementById("input-datetime").value).getTime(),
+        url: "/combination/beacon/2.0/next/" + new Date(document.getElementById("input-datetime").value).getTime(),
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',

@@ -14,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/beacon/2.0/unicorn/seeds")
+@RequestMapping("/unicorn/beacon/2.0/seeds")
 public class VdfUnicornController implements WebMvcConfigurer {
 
     private final VdfUnicornService vdfUnicornService;

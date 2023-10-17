@@ -6,7 +6,7 @@ $(document).ready(function() {
 
 function getCurrent() {
     $.ajax({
-        url: "/beacon/2.0/vdf/unicorn/current/",
+        url: "/unicorn/beacon/2.0/current/",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -21,7 +21,7 @@ function getCurrent() {
 
 function getLastPulseReloadPage() {
     $.ajax({
-        url: "/beacon/2.0/vdf/unicorn/last",
+        url: "/unicorn/beacon/2.0/last",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -33,7 +33,7 @@ function getLastPulseReloadPage() {
 
 function getLastPulse() {
     $.ajax({
-        url: "/beacon/2.0/vdf/unicorn/last",
+        url: "/unicorn/beacon/2.0/last",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -87,7 +87,7 @@ function updateSeedTableCurrent(seedList) {
 
 function getFirstPulse() {
     $.ajax({
-        url: "/beacon/2.0/vdf/unicorn/first",
+        url: "/unicorn/beacon/2.0/first",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -102,7 +102,7 @@ function getFirstPulse() {
 
 function getPreviousPulse() {
     $.ajax({
-        url: "/beacon/2.0/vdf/unicorn/previous/" + new Date(document.getElementById("input-datetime").value).getTime() ,
+        url: "/unicorn/beacon/2.0/previous/" + new Date(document.getElementById("input-datetime").value).getTime() ,
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -117,7 +117,7 @@ function getPreviousPulse() {
 
 function getNextPulse() {
     $.ajax({
-        url: "/beacon/2.0/vdf/unicorn/next/" + new Date(document.getElementById("input-datetime").value).getTime(),
+        url: "/unicorn/beacon/2.0/next/" + new Date(document.getElementById("input-datetime").value).getTime(),
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',

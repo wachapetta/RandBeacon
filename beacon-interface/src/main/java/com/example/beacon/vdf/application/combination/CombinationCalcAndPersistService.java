@@ -99,11 +99,11 @@ public class CombinationCalcAndPersistService {
             maxPulseIndex = maxPulseIndex + 1L ;
         }
 
-        String uri = env.getProperty("beacon.url") +  "/beacon/2.0/combination/pulse/" + maxPulseIndex;
+        String uri = env.getProperty("beacon.url") +  "/combination/beacon/2.0/pulse/" + maxPulseIndex;
 
         CombinationEntity combinationEntity = new CombinationEntity();
         combinationEntity.setUri(uri);
-        combinationEntity.setVersion("Version 1.0");
+        combinationEntity.setVersion("2.0");
         combinationEntity.setPulseIndex(maxPulseIndex);
         combinationEntity.setTimeStamp(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")).plusMinutes(delayInMinutes).withSecond(delayInSeconds).withNano(0));
         combinationEntity.setCertificateId(this.certificateId);

@@ -1,6 +1,8 @@
 package com.example.beacon.interfac.api;
 
 import com.example.beacon.interfac.api.dto.PagedResponseDto;
+import com.example.beacon.interfac.api.dto.PulseDto;
+import com.example.beacon.interfac.api.dto.SkiplistDto;
 import com.example.beacon.interfac.domain.service.BadRequestException;
 import com.example.beacon.interfac.domain.service.QuerySequencePulsesService;
 import com.example.beacon.vdf.infra.util.DateUtil;
@@ -11,11 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
-@RequestMapping(value = "/beacon/2.0/skiplist", produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value ={"/beacon/2.0/skiplist","/beacon/2.1/skiplist"}, produces= MediaType.APPLICATION_JSON_VALUE)
 public class SequenceOfPulsesResource {
 
     private final QuerySequencePulsesService querySequencePulsesService;
@@ -27,7 +31,7 @@ public class SequenceOfPulsesResource {
 
     @GetMapping("time/{startTimestamp}/{endTimestamp}")
     @ResponseBody
-    public ResponseEntity skypList(@PathVariable String startTimestamp, @PathVariable String endTimestamp,@RequestParam(defaultValue = "0") int offset,@RequestParam(defaultValue = "0") int limit){
+    public ResponseEntity skypList(@PathVariable String startTimestamp, @PathVariable String endTimestamp, @RequestParam(defaultValue = "0") int offset, @RequestParam(defaultValue = "0") int limit, HttpServletRequest request){
         try {
 
 
@@ -45,6 +49,13 @@ public class SequenceOfPulsesResource {
             if(endTime.isBefore(startTime))
                 return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,"Anchor timestamp is before target timestamp.");
 
+
+            if(request !=null && request.getRequestURI().contains("2.0")){
+                List<PulseDto> sequence = querySequencePulsesService.sequence(startTime, endTime);
+                SkiplistDto skiplist = new SkiplistDto(sequence);
+                return new ResponseEntity(skiplist, HttpStatus.OK);
+            }
+
             PagedResponseDto skipList = querySequencePulsesService.skiplist(endTime, startTime,offset,limit);
 
             if (skipList==null){
@@ -55,7 +66,7 @@ public class SequenceOfPulsesResource {
         }
         catch (RuntimeException e){
             e.printStackTrace();
-            return ResourceResponseUtil.invalidCall();
+            return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,e.getMessage());
         }
         catch (Exception e){
             e.printStackTrace();
@@ -104,7 +115,7 @@ public class SequenceOfPulsesResource {
             return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,b.getMessage());
         }
 
-        return skypList(anchorTime,targetTime,offset, limit);
+        return skypList(anchorTime,targetTime,offset, limit,null);
 
     }
 

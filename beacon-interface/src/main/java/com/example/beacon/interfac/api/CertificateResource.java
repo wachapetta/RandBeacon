@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
-@RequestMapping(value = {"/beacon/2.0/certificate","/combination/certificate","beacon/2.0/vdf/unicorn/certificate","/beacon/vdf/unicorn/unicorn/certificate"}, produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/beacon/2.0/certificate","/beacon/2.1/certificate","/combination/beacon/2.0/certificate","/unicorn/beacon/2.0/certificate"}, produces= MediaType.APPLICATION_JSON_VALUE)
 public class CertificateResource {
 
     @GetMapping(path = "/{certificateIdentifier}")

@@ -17,7 +17,7 @@ class VdfVerifyerResource {
 
     private final String p = "9325099249067051137110237972241325094526304716592954055103859972916682236180445434121127711536890366634971622095209473411013065021251467835799907856202363";
 
-    @GetMapping("/beacon/2.0/combination/verify")
+    @GetMapping("/combination/beacon/2.0/verify")
     ResponseEntity verify(@RequestParam(name = "y") String y,
                           @RequestParam(name = "x") String x,
                           @RequestParam(name = "iterations") int iterations){
@@ -26,7 +26,7 @@ class VdfVerifyerResource {
         return new ResponseEntity(new VdfSlothReturnVerifiedDto(p,y, x, iterations, verified), HttpStatus.OK);
     }
 
-    @GetMapping("/beacon/2.0/vdf/unicorn/verify")
+    @GetMapping("/unicorn/beacon/2.0/verify")
     ResponseEntity verifyUnicorn(@RequestParam(name = "y") String y,
                           @RequestParam(name = "x") String x,
                           @RequestParam(name = "iterations") int iterations){

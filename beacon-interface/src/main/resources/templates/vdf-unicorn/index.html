@@ -120,41 +120,41 @@
           <br>
 
           <strong>Current State: </strong> <br>
-          <span th:text="${uri}"></span>/beacon/2.0/vdf/unicorn/current<br>
+          <span th:text="${uri}"></span>/unicorn/beacon/2.0/current<br>
           <span>
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/vdf/unicorn/current}" th:text="|${uri}/beacon/2.0/vdf/unicorn/current|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/unicorn/beacon/2.0/current}" th:text="|${uri}/unicorn/beacon/2.0/current|"></a>
           </span>
 
           <br><br>
 
           <strong>Previous Pulse: </strong> <br>
-          <span th:text="${uri}"></span><span style="word-break: break-word">/beacon/2.0/vdf/unicorn/previous/&lt;timestamp&gt;</span> <br>
+          <span th:text="${uri}"></span><span style="word-break: break-word">/unicorn/beacon/2.0/previous/&lt;timestamp&gt;</span> <br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/vdf/unicorn/previous/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.0/vdf/unicorn/previous/${timestampPrevious}|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/unicorn/beacon/2.0/previous/} + ${timestampPrevious}" th:text="|${uri}/unicorn/beacon/2.0/previous/${timestampPrevious}|"></a>
           </span>
 
           <br><br>
 
           <strong>Next Pulse:</strong><br>
-          <span th:text="${uri}"></span>/beacon/2.0/vdf/unicorn/next/&lt;timestamp&gt; <br>
+          <span th:text="${uri}"></span>/unicorn/beacon/2.0/next/&lt;timestamp&gt; <br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/vdf/unicorn/next/} + ${timestampPrevious}" th:text="|${uri}/beacon/2.0/vdf/unicorn/next/${timestampPrevious}|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/unicorn/beacon/2.0/next/} + ${timestampPrevious}" th:text="|${uri}/unicorn/beacon/2.0/next/${timestampPrevious}|"></a>
           </span>
 
           <br><br>
 
           <strong>Last Available Pulse:</strong><br>
-          <span th:text="${uri}"></span>/beacon/2.0/vdf/unicorn/last <br>
+          <span th:text="${uri}"></span>/unicorn/beacon/2.0/last <br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/vdf/unicorn/last}" th:text="|${uri}/beacon/2.0/vdf/unicorn/last|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/unicorn/beacon/2.0/last}" th:text="|${uri}/unicorn/beacon/2.0/last|"></a>
           </span>
 
           <br><br>
 
           <strong>First Pulse:</strong><br>
-          <span th:text="${uri}"></span>/beacon/2.0/vdf/unicorn/first<br>
+          <span th:text="${uri}"></span>/unicorn/beacon/2.0/first<br>
           <span th:if="${timestampPrevious!=null}">
-          Example: <a style="word-break: break-word" th:href="@{/beacon/2.0/vdf/unicorn/first}" th:text="|${uri}/beacon/2.0/vdf/unicorn/first|"></a>
+          Example: <a style="word-break: break-word" th:href="@{/unicorn/beacon/2.0/first}" th:text="|${uri}/unicorn/beacon/2.0/first|"></a>
           </span>
 
           <br><br>
@@ -169,7 +169,7 @@
 
 
           <strong>Post a value:</strong><br>
-          <strong>URI: </strong> <span th:text="${uri}"></span>/beacon/2.0/vdf/unicorn<br>
+          <strong>URI: </strong> <span th:text="${uri}"></span>/unicorn/beacon/2.0<br>
           <strong>Method: </strong>POST
           <br>
           <strong>Content-Type: </strong>Content-Type: application/json
@@ -214,7 +214,7 @@
                     <p class="card-text"><strong>Current hash:</strong><span id="spanCurrentHash"></span></p>
 <!--                    <p class="card-text"><strong>Output:</strong><span id="spanOutput"></span></p>-->
 <!--                    <p class="card-text"><strong>See details:</strong><span id="spanOutput"></span></p>-->
-                    <a th:href="@{/beacon/2.0/unicorn/seeds/new}" class="btn btn-primary">Post a new value</a>
+                    <a th:href="@{/unicorn/beacon/2.0/seeds/new}" class="btn btn-primary">Post a new value</a>
 
 <!--                    <a class="btn  btn-link  btn-xs" title="Editar perfil" aria-label="Editar perfil" th:href="@{/cadastro/passo-1/{id}(id=${ep.id + '/editar'})}">-->
 <!--                      <i class="glyphicon glyphicon-user" aria-hidden="true"></i>-->
