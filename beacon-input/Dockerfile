@@ -1,6 +1,16 @@
-FROM openjdk:8-jdk-alpine
-VOLUME /tmp
+FROM maven:3.9-eclipse-temurin-17-alpine
 EXPOSE 8091
-ADD target/*.jar app.jar
-ENV JAVA_OPTS=""
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar" ]
+
+VOLUME /root/.m2
+
+
+WORKDIR /beacon-input
+COPY . .
+
+WORKDIR /beacon-input/target/beacon-libs
+RUN mvn clean install -DskipTests
+
+
+WORKDIR /beacon-input
+RUN mvn clean install -DskipTests
+CMD mvn spring-boot:run -DskipTests

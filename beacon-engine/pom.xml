@@ -5,7 +5,7 @@
 
 	<groupId>br.gov.inmetro.beacon</groupId>
 	<artifactId>beacon-engine</artifactId>
-	<version>1.0.4.RELEASE</version>
+	<version>2.1.0.BETA</version>
 	<packaging>jar</packaging>
 
 	<name>beacon-engine</name>
@@ -122,9 +122,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>br.gov.inmetro.beacon.library</groupId>
+			<groupId>br.gov.inmetro.beacon</groupId>
 			<artifactId>beacon-libs</artifactId>
-			<version>1.0.0.RELEASE</version>
+			<version>2.1.0.BETA</version>
 		</dependency>
 
 	</dependencies>

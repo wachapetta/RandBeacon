@@ -1,8 +1,14 @@
-FROM openjdk:8-jdk-alpine
-VOLUME /tmp
+FROM maven:3.9-eclipse-temurin-17-alpine
 EXPOSE 8081
-ADD target/*.jar app.jar
-ADD docker-files/beacon.cer beacon.cer
-ADD docker-files/beacon-priv.pem beacon-priv.pem
-ENV JAVA_OPTS=""
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar" ]
+
+VOLUME /root/.m2
+
+WORKDIR /beacon-engine
+COPY . .
+
+WORKDIR /beacon-engine/target/beacon-libs
+RUN mvn clean install -DskipTests
+
+WORKDIR /beacon-engine
+RUN mvn clean install -DskipTests
+CMD mvn spring-boot:run -DskipTests

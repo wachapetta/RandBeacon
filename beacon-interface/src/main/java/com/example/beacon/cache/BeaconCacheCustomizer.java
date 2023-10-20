@@ -12,5 +12,6 @@ public class BeaconCacheCustomizer implements CacheManagerCustomizer<ConcurrentM
     public void customize(ConcurrentMapCacheManager cacheManager) {
 
         cacheManager.setCacheNames(Arrays.asList("countSkipLists"));
+        cacheManager.setCacheNames(Arrays.asList("countSkipListsByChainAndIndexes"));
     }
 }
