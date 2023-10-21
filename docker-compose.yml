@@ -31,7 +31,7 @@ services:
     build: ./beacon-input
     ports:
       - "8091:8091"
-    restart: always
+    #restart: always
     environment:
       SPRING_PROFILES_ACTIVE: default
       RDS_HOSTNAME: mysql-beacon-db
@@ -45,7 +45,8 @@ services:
       - mysql-beacon-db
       - rabbitmq
     volumes:
-      - maven-repo:/root/.m2
+      - ../maven-repo:/root/.m2
+      - ./beacon-libs:/beacon-libs
     networks:
       - beacon-network
       
@@ -53,7 +54,7 @@ services:
     build: ./beacon-engine
     ports:
       - "8081:8081"
-    restart: always    
+    #restart: always    
     environment:
       RDS_HOSTNAME: mysql-beacon-db
       RDS_PORT: 3306
@@ -66,14 +67,15 @@ services:
       BEACON_MAIL_TEST_CONNECTION: "false"
       BEACON_SEND_ALERTS_BY_EMAIL: "false"
       BEACON_X509_CERTIFICATE: docker-files/beacon.cer
-      BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pembeacon-priv.pem
+      BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pem
       BEACON_ENGINE_LOG_LEVEL: warn
     depends_on: # Start the depends_on first
       - rabbitmq
       - mysql-beacon-db
       - beacon-input
     volumes:
-      - maven-repo:/root/.m2
+      - ../maven-repo:/root/.m2
+      - ./beacon-libs:/beacon-libs
     networks:
       - beacon-network 
       
@@ -81,7 +83,7 @@ services:
     build: ./beacon-interface
     ports:
       - "8080:8080"
-    restart: always    
+    #restart: always    
     environment:
       RDS_HOSTNAME: mysql-beacon-db
       RDS_PORT: 3306
@@ -96,7 +98,8 @@ services:
     depends_on: # Start the depends_on first
       - beacon-engine
     volumes:
-      - maven-repo:/root/.m2
+      - ../maven-repo:/root/.m2
+      - ./beacon-libs:/beacon-libs
     networks:
       - beacon-network 
 

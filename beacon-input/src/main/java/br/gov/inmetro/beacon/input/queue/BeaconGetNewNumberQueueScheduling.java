@@ -58,7 +58,8 @@ public class BeaconGetNewNumberQueueScheduling {
             return;
         }
 
-        Thread.sleep(howLongSleeping);
+        if(howLongSleeping>0)
+            Thread.sleep(howLongSleeping);
 
         EntropyDto noiseDto = entropyAppService.getNoise512Bits();
         Entropy saved = entropyRepository.save(noiseDto);
