@@ -1,5 +1,6 @@
 package br.gov.inmetro.beacon.engine.domain.chain;
 
+@Deprecated
 public class ChainDomainService {
 
     public static ChainValueObject getActiveChain(){

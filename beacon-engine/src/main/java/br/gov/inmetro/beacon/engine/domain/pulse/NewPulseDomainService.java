@@ -1,26 +1,21 @@
 package br.gov.inmetro.beacon.engine.domain.pulse;
 
 import br.gov.inmetro.beacon.engine.application.PulseDto;
-import br.gov.inmetro.beacon.engine.domain.chain.ChainDomainService;
 import br.gov.inmetro.beacon.engine.domain.chain.ChainValueObject;
 import br.gov.inmetro.beacon.engine.domain.repository.CombinationErrors;
 import br.gov.inmetro.beacon.engine.domain.repository.EntropyRepository;
-import br.gov.inmetro.beacon.engine.domain.repository.PulsesRepository;
 import br.gov.inmetro.beacon.engine.domain.service.ActiveChainService;
 import br.gov.inmetro.beacon.engine.domain.service.PastOutputValuesService;
 import br.gov.inmetro.beacon.engine.infra.ProcessingErrorTypeEnum;
 import br.gov.inmetro.beacon.engine.infra.PulseEntity;
 import br.gov.inmetro.beacon.engine.infra.alerts.ISendAlert;
-import br.gov.inmetro.beacon.engine.queue.BeaconVdfQueueSender;
 import br.gov.inmetro.beacon.engine.queue.EntropyDto;
-import br.gov.inmetro.beacon.engine.queue.PrecommitmentQueueDto;
 import br.gov.inmetro.beacon.library.aspects.TimingPerformanceAspect;
 import br.gov.inmetro.beacon.library.ciphersuite.suite0.CriptoUtilService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +25,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static br.gov.inmetro.beacon.engine.infra.util.DateUtil.getTimeStampFormated;
 
 @Service
 public class NewPulseDomainService {
@@ -94,7 +85,7 @@ public class NewPulseDomainService {
             try {
                 this.regularNoises = regularNoises;
 
-                this.currentChain = ChainDomainService.getActiveChain();
+                this.currentChain = activeChainService.get();
                 this.lastPulseEntity = pulseFacade.getLast(currentChain.getChainIndex());
 
                 combinar(currentChain.getChainIndex(), numberOfSources);
