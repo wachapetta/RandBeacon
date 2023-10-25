@@ -34,3 +34,4 @@
 /cache/.lock
 /cache/
 /logs/
+*.gz
