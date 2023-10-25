@@ -15,9 +15,10 @@ services:
       - beacon-network
     healthcheck:
       test: CMD rabbitmq-diagnostics -q check_port_connectivity
-      interval: 1m
-      timeout: 30s
+      interval: 1m30s
+      timeout: 1m
       retries: 5
+      start_period: 1m
   
   mysql-beacon-db:
     image: mysql:5.7     
@@ -36,14 +37,14 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin","ping","-h", "localhost"]
       interval: 1m30s
-      timeout: 20s
-      retries: 10
-      start_period: 40s
+      timeout: 1m
+      retries: 5
+      start_period: 1m
   
   beacon-input:
     build: ./beacon-input
-    ports:
-      - "8091:8091"
+    #ports:
+      #- "8091:8091"
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: default
@@ -57,15 +58,13 @@ services:
     depends_on: # Start the depends_on first
       - mysql-beacon-db
       - rabbitmq
-    volumes:
-      - ../maven-repo:/root/.m2
     networks:
       - beacon-network
       
   beacon-engine:
     build: ./beacon-engine
-    ports:
-      - "8081:8081"
+    #ports:
+      #- "8081:8081"
     restart: always    
     environment:
       RDS_HOSTNAME: mysql-beacon-db
@@ -84,9 +83,6 @@ services:
     depends_on: # Start the depends_on first
       - rabbitmq
       - mysql-beacon-db
-      - beacon-input
-    volumes:
-      - ../maven-repo:/root/.m2
     networks:
       - beacon-network 
       
@@ -108,8 +104,6 @@ services:
       BEACON_ENGINE_LOG_LEVEL: info
     depends_on: # Start the depends_on first
       - beacon-engine
-    volumes:
-      - ../maven-repo:/root/.m2
     networks:
       - beacon-network 
 
