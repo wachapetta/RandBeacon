@@ -33,3 +33,4 @@
 *.db
 /cache/.lock
 /cache/
+/logs/
