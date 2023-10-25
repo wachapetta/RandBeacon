@@ -1,0 +1,43 @@
+package br.inmetro.gov.beacon.frontend.vdf.application.combination;
+
+import br.gov.inmetro.beacon.library.ciphersuite.suite0.ICipherSuite;
+import br.inmetro.gov.beacon.frontend.vdf.application.combination.dto.SeedUnicordCombinationVo;
+import br.inmetro.gov.beacon.frontend.vdf.sources.SeedSourceDto;
+
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CombinationUncornCumulativeHash {
+
+    public List<SeedUnicordCombinationVo> calcSeedConcat(ICipherSuite cipherSuite, List<SeedSourceDto> seedList) {
+
+        String currentValue = "";
+        List<SeedUnicordCombinationVo> out = new ArrayList<>();
+
+        for (int i = 0; i < seedList.size(); i++) {
+            SeedSourceDto dto = seedList.get(i);
+
+            if (i == 0){
+                currentValue = cipherSuite.getDigest(concatValues(seedList.get(0)));
+            } else {
+                String tmp = currentValue + cipherSuite.getDigest(concatValues(dto));
+                currentValue = cipherSuite.getDigest(tmp);
+            }
+
+            String cumulativeDigest = currentValue;
+            ZonedDateTime parse = ZonedDateTime.parse(dto.getTimeStamp(), DateTimeFormatter.ISO_DATE_TIME);
+            out.add(new SeedUnicordCombinationVo(dto.getUri(), dto.getSeed(), dto.getDescription(), cumulativeDigest, parse));
+        }
+
+        return out;
+    }
+
+    private String concatValues(SeedSourceDto dto){
+        String concatValue = dto.getTimeStamp() + dto.getSeed().trim() + dto.getDescription().trim() + dto.getUri().trim();
+        return concatValue;
+    }
+
+}
+

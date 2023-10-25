@@ -16,7 +16,7 @@
 
         <listeners>
             <listener>
-                <class>com.example.beacon.cache.CacheEventLogger</class>
+                <class>br.inmetro.gov.beacon.frontend.cache.CacheEventLogger</class>
                 <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
                 <event-ordering-mode>UNORDERED</event-ordering-mode>
                 <events-to-fire-on>CREATED</events-to-fire-on>
@@ -43,7 +43,7 @@
 
         <listeners>
             <listener>
-                <class>com.example.beacon.cache.CacheEventLogger</class>
+                <class>br.inmetro.gov.beacon.frontend.cache.CacheEventLogger</class>
                 <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
                 <event-ordering-mode>UNORDERED</event-ordering-mode>
                 <events-to-fire-on>CREATED</events-to-fire-on>

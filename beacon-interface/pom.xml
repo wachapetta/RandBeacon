@@ -165,7 +165,7 @@
 				<version>3.3.2</version>
 				<configuration>
                 <container>
-                    <mainClass> com.example.beacon.BeaconInterfaceApplication</mainClass>
+                    <mainClass>br.inmetro.gov.beacon.frontend.BeaconInterfaceApplication</mainClass>
 					<environment>
 						<RDS_HOSTNAME>host.docker.internal</RDS_HOSTNAME>
 						<BEACON_RABBIT_HOSTNAME>172.17.0.2</BEACON_RABBIT_HOSTNAME>
