@@ -148,9 +148,10 @@
 						<mainClass> br.gov.inmetro.beacon.BeaconEngineApplication</mainClass>
 						<environment>
 							<RDS_HOSTNAME>host.docker.internal</RDS_HOSTNAME>
-							<BEACON_RABBIT_HOSTNAME>172.17.0.2</BEACON_RABBIT_HOSTNAME>
+							<BEACON_RABBIT_HOSTNAME>host.docker.internal</BEACON_RABBIT_HOSTNAME>
 							<BEACON_X509_CERTIFICATE>/beacon/configFiles/beacon.cer</BEACON_X509_CERTIFICATE>
 							<BEACON_X509_PRIVATEKEY>/beacon/configFiles/beacon-priv.pem</BEACON_X509_PRIVATEKEY>
+							<RDS_PASSWORD>ZT9HHR953OJRFANH</RDS_PASSWORD>
 						</environment>
 					</container>
 					<extraDirectories>

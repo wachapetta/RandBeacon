@@ -1,5 +1,6 @@
 version: '3.7'
 services:
+  
   rabbitmq:
     image: rabbitmq:3.8.2-management    
     ports:
@@ -12,6 +13,11 @@ services:
       - ./beacon-engine/docker-files/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
     networks:
       - beacon-network
+    healthcheck:
+      test: CMD rabbitmq-diagnostics -q check_port_connectivity
+      interval: 1m
+      timeout: 30s
+      retries: 5
   
   mysql-beacon-db:
     image: mysql:5.7     
@@ -27,6 +33,12 @@ services:
       - ./conf/mysql/:/etc/mysql/conf.d/:ro
     networks:
       - beacon-network
+    healthcheck:
+      test: ["CMD", "mysqladmin","ping","-h", "localhost"]
+      interval: 1m30s
+      timeout: 20s
+      retries: 10
+      start_period: 40s
   
   beacon-input:
     build: ./beacon-input
@@ -54,7 +66,7 @@ services:
     build: ./beacon-engine
     ports:
       - "8081:8081"
-    #restart: always    
+    restart: always    
     environment:
       RDS_HOSTNAME: mysql-beacon-db
       RDS_PORT: 3306
