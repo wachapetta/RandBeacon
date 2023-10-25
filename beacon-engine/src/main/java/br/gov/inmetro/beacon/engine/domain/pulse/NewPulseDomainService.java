@@ -67,6 +67,7 @@ public class NewPulseDomainService {
         this.pastOutputValuesService = pastOutputValuesService;
         this.iSendAlert = iSendAlert;
         this.activeChainService = activeChainService;
+        this.currentChain= activeChainService.get();
         this.numberOfSources = env.getProperty("beacon.number-of-entropy-sources");
         this.pulseFacade = facade;
     }
@@ -79,13 +80,19 @@ public class NewPulseDomainService {
     public void begin(List<EntropyDto> regularNoises) {
 
         boolean hasActiveChain = activeChainService.hasActiveChain();
+
+        // if new chain has started
+        if(hasActiveChain && endOfChainPublished ==true){
+            this.currentChain = activeChainService.get();
+            endOfChainPublished = false;
+        }
+
         logger.warn("is there a chain active? "+hasActiveChain);
         logger.warn("was the chain ended? "+endOfChainPublished);
         if(hasActiveChain || !endOfChainPublished){
             try {
                 this.regularNoises = regularNoises;
 
-                this.currentChain = activeChainService.get();
                 this.lastPulseEntity = pulseFacade.getLast(currentChain.getChainIndex());
 
                 combinar(currentChain.getChainIndex(), numberOfSources);

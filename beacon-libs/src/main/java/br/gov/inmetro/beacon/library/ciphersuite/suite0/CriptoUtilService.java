@@ -4,13 +4,15 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
-import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
 import java.io.*;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 
 public class CriptoUtilService {
 
@@ -29,7 +31,8 @@ public class CriptoUtilService {
     public static PublicKey loadPublicKeyFromCertificate(String certificatePath) {
         PublicKey publicKey = null;
         try (InputStream inStream = new FileInputStream(certificatePath)) {
-            X509Certificate cert = X509Certificate.getInstance(inStream);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate cert = cf.generateCertificate(inStream);
             publicKey = cert.getPublicKey();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -4,7 +4,7 @@ $(document).ready(function() {
 
 function getLastPulseReloadPage() {
     $.ajax({
-        url: "/beacon/2.1/pulse/last",
+        url: "/beacon/2.1/pulse",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',
@@ -16,7 +16,7 @@ function getLastPulseReloadPage() {
 
 function getLastPulse() {
     $.ajax({
-        url: "/beacon/2.1/pulse/last",
+        url: "/beacon/2.1/pulse",
         method: 'GET',
         dataType: 'json',
         contentType: 'application/json',

@@ -24,6 +24,7 @@ services:
     volumes:
       - mysql-beacon-data-volume:/var/lib/mysql
       - ./beacon-engine/docker-files/provision/mysql/init:/docker-entrypoint-initdb.d
+      - ./conf/mysql/:/etc/mysql/conf.d/:ro
     networks:
       - beacon-network
   
@@ -31,7 +32,7 @@ services:
     build: ./beacon-input
     ports:
       - "8091:8091"
-    #restart: always
+    restart: always
     environment:
       SPRING_PROFILES_ACTIVE: default
       RDS_HOSTNAME: mysql-beacon-db
@@ -46,7 +47,6 @@ services:
       - rabbitmq
     volumes:
       - ../maven-repo:/root/.m2
-      - ./beacon-libs:/beacon-libs
     networks:
       - beacon-network
       
@@ -75,7 +75,6 @@ services:
       - beacon-input
     volumes:
       - ../maven-repo:/root/.m2
-      - ./beacon-libs:/beacon-libs
     networks:
       - beacon-network 
       
@@ -83,7 +82,7 @@ services:
     build: ./beacon-interface
     ports:
       - "8080:8080"
-    #restart: always    
+    restart: always    
     environment:
       RDS_HOSTNAME: mysql-beacon-db
       RDS_PORT: 3306
@@ -94,18 +93,16 @@ services:
       BEACON_RABBIT_HOSTNAME: rabbitmq      
       BEACON_X509_CERTIFICATE: docker-files/beacon.cer
       BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pem
-      BEACON_ENGINE_LOG_LEVEL: warn
+      BEACON_ENGINE_LOG_LEVEL: info
     depends_on: # Start the depends_on first
       - beacon-engine
     volumes:
       - ../maven-repo:/root/.m2
-      - ./beacon-libs:/beacon-libs
     networks:
       - beacon-network 
 
 volumes:
   mysql-beacon-data-volume:
-  maven-repo:
   
   
 # Networks to be created to facilitate communication between containers
