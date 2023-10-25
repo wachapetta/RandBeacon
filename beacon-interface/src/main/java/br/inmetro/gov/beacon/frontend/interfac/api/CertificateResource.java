@@ -1,29 +1,76 @@
 package br.inmetro.gov.beacon.frontend.interfac.api;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 @RequestMapping(value = {"/beacon/2.0/certificate","/beacon/2.1/certificate","/combination/beacon/2.0/certificate","/unicorn/beacon/2.0/certificate"}, produces= MediaType.APPLICATION_JSON_VALUE)
 public class CertificateResource {
 
+    @Autowired
+    public Environment env;
+
     @GetMapping(path = "/{certificateIdentifier}")
     @ResponseBody
     public ResponseEntity getCertificate(@PathVariable String certificateIdentifier) {
-        String hash = "04c5dc3b40d25294c55f9bc2496fd4fe9340c1308cd073900014e6c214933c7f7737227fc5e4527298b9e95a67ad92e0310b37a77557a10518ced0ce1743e132";
+        String filePath = env.getProperty("beacon.x509.certificate.folder") +"/"+certificateIdentifier;
 
-        if (hash.equals(certificateIdentifier)){
-            return new ResponseEntity(getCertificateString(), HttpStatus.OK);
-        } else {
+        try {
+            FileReader reader = new FileReader(filePath);
+
+            StringBuilder content = new StringBuilder();
+            int nextChar;
+            while ((nextChar = reader.read()) != -1) {
+                content.append((char) nextChar);
+            }
+
+            return new ResponseEntity(String.valueOf(content), HttpStatus.OK);
+        } catch (IOException e) {
             return ResourceResponseUtil.createErrorResponse(HttpStatus.BAD_REQUEST,"Invalid certificate identifier");
-
         }
-
     }
+
+    @GetMapping(path = "/list")
+    @ResponseBody
+    public ResponseEntity getList() {
+        String folder = env.getProperty("beacon.x509.certificate.folder");
+
+        try {
+            Set<String> files = listFilesUsingFilesList(folder);
+            return new ResponseEntity<>(files,HttpStatus.OK);
+        } catch (IOException e) {
+            return ResourceResponseUtil.internalError();
+        }
+    }
+
+    private Set<String> listFilesUsingFilesList(String folder) throws IOException {
+        try (Stream<Path> stream = Files.list(Paths.get(folder))) {
+            return stream
+                    .filter(file -> !Files.isDirectory(file))
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+
 
     private String getCertificateString(){
 

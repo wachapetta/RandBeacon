@@ -80,6 +80,7 @@ services:
       BEACON_X509_CERTIFICATE: docker-files/beacon.cer
       BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pem
       BEACON_ENGINE_LOG_LEVEL: warn
+      BEACON_X509_FOLDER:
     depends_on: # Start the depends_on first
       - rabbitmq
       - mysql-beacon-db
@@ -101,7 +102,8 @@ services:
       BEACON_RABBIT_HOSTNAME: rabbitmq      
       BEACON_X509_CERTIFICATE: docker-files/beacon.cer
       BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pem
-      BEACON_ENGINE_LOG_LEVEL: info
+      BEACON_ENGINE_LOG_LEVEL: warn
+      BEACON_X509_FOLDER:
     depends_on: # Start the depends_on first
       - beacon-engine
     networks:

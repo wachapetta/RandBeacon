@@ -171,6 +171,7 @@
 						<BEACON_RABBIT_HOSTNAME>172.17.0.2</BEACON_RABBIT_HOSTNAME>
 						<BEACON_X509_CERTIFICATE>/beacon/configFiles/beacon.cer</BEACON_X509_CERTIFICATE>
 						<BEACON_X509_PRIVATEKEY>/beacon/configFiles/beacon-priv.pem</BEACON_X509_PRIVATEKEY>
+						<BEACON_X509_FOLDER></BEACON_X509_FOLDER>
 					</environment>
 					<ports>
 						<port>8080</port>
@@ -195,31 +196,6 @@
 					</permissions>
 				</extraDirectories>
             </configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.7</version>
-				<executions>
-					<execution>
-						<id>copy-beacon-libs</id>
-						<phase>install</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/beacon-libs</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/../beacon-libs</directory>
-									<includes>
-										<include>src/**</include>
-										<include>pom.xml</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
