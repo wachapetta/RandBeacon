@@ -11,35 +11,33 @@ services:
       - ../rabbitmq:/var/lib/rabbitmq/mnesia:rw
       - ./beacon-engine/docker-files/definitions.json:/opt/definitions.json:ro
       - ./beacon-engine/docker-files/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      #- ./conf/healthcheck/health_rabbitmq.sh:/usr/local/bin/health_rabbitmq.sh
     networks:
       - beacon-network
     healthcheck:
-      test: CMD rabbitmq-diagnostics -q check_port_connectivity
-      interval: 1m30s
-      timeout: 1m
-      retries: 5
-      start_period: 1m
+      test: rabbitmq-diagnostics -q listeners
+      retries: 10
+    
   
   mysql-beacon-db:
-    image: mysql:5.7     
+    image: mariadb:10.11 #1st mysql:5.7-> 8.0.34   mysql:5.75.7 -> mariadb:10.4 e mariadb:10.6   e  mariadb:10.11  
     ports:
       - "3306:3306"
     restart: always
     environment:   
       MYSQL_ROOT_PASSWORD: ZT9HHR953OJRFANH      
       MYSQL_DATABASE: beacon_input
+      MARIADB_MYSQL_LOCALHOST_USER: 1
     volumes:
       - mysql-beacon-data-volume:/var/lib/mysql
       - ./beacon-engine/docker-files/provision/mysql/init:/docker-entrypoint-initdb.d
       - ./conf/mysql/:/etc/mysql/conf.d/:ro
+      #- ./conf/healthcheck/health_mysql.sh:/usr/local/bin/health_mysql.sh
     networks:
       - beacon-network
     healthcheck:
-      test: ["CMD", "mysqladmin","ping","-h", "localhost"]
-      interval: 1m30s
-      timeout: 1m
+      test: healthcheck.sh --su-mysql --connect
       retries: 5
-      start_period: 1m
   
   beacon-input:
     build: ./beacon-input
@@ -56,8 +54,10 @@ services:
       RABBIT_URI: amqp://guest:guest@rabbitmq:5672
       BEACON_RABBIT_HOSTNAME: rabbitmq
     depends_on: # Start the depends_on first
-      - mysql-beacon-db
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      mysql-beacon-db:
+        condition: service_healthy
     networks:
       - beacon-network
       
@@ -82,8 +82,10 @@ services:
       BEACON_ENGINE_LOG_LEVEL: warn
       BEACON_X509_FOLDER:
     depends_on: # Start the depends_on first
-      - rabbitmq
-      - mysql-beacon-db
+      rabbitmq:
+        condition: service_healthy
+      mysql-beacon-db:
+        condition: service_healthy
     networks:
       - beacon-network 
       
