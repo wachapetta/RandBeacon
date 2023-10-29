@@ -2,7 +2,7 @@ version: '3.7'
 services:
   
   rabbitmq:
-    image: rabbitmq:3.8.2-management    
+    image: rabbitmq:3.12.7-management-alpine 
     ports:
       - "5672:5672"
       - "15672:15672"    
@@ -10,7 +10,7 @@ services:
     volumes:      
       - ../rabbitmq:/var/lib/rabbitmq/mnesia:rw
       - ./beacon-engine/docker-files/definitions.json:/opt/definitions.json:ro
-      - ./beacon-engine/docker-files/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./beacon-engine/docker-files/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       #- ./conf/healthcheck/health_rabbitmq.sh:/usr/local/bin/health_rabbitmq.sh
     networks:
       - beacon-network
