@@ -104,8 +104,36 @@ services:
       BEACON_RABBIT_HOSTNAME: rabbitmq      
       BEACON_X509_CERTIFICATE: docker-files/beacon.cer
       BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pem
-      BEACON_ENGINE_LOG_LEVEL: warn
-      BEACON_X509_FOLDER:
+      BEACON_ENGINE_LOG_LEVEL: info
+      BEACON_X509_FOLDER: /beacon/certificate
+    volumes:
+      - ./conf/certificate:/beacon/certificate
+    depends_on: # Start the depends_on first
+      - beacon-engine
+    networks:
+      - beacon-network 
+      
+  beacon-interface-1:
+    build: ./beacon-interface
+    ports:
+      - "8081:8080"
+    restart: always    
+    environment:
+      RDS_HOSTNAME: mysql-beacon-db
+      RDS_PORT: 3306
+      RDS_DB_NAME: beacon2
+      RDS_USERNAME: root
+      RDS_PASSWORD: ZT9HHR953OJRFANH
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672      
+      BEACON_RABBIT_HOSTNAME: rabbitmq      
+      BEACON_X509_CERTIFICATE: docker-files/beacon.cer
+      BEACON_X509_PRIVATEKEY: docker-files/beacon-priv.pem
+      BEACON_ENGINE_LOG_LEVEL: info
+      BEACON_X509_FOLDER: /beacon/certificate
+      beacon_combination_enabled: false
+      beacon_unicorn_enabled: false
+    volumes:
+      - ./conf/certificate:/beacon/certificate
     depends_on: # Start the depends_on first
       - beacon-engine
     networks:
