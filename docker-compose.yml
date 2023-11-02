@@ -137,6 +137,7 @@ services:
   proxy:
     image: nginx:1.24.0-alpine-slim
     ports:
+      - "443:443"
       - "80:80"
     restart: always    
     volumes:
