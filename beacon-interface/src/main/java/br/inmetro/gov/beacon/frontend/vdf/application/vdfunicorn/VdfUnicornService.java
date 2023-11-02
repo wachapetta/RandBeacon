@@ -206,7 +206,7 @@ public class VdfUnicornService {
 
         VdfUnicornEntity unicornEntity = new VdfUnicornEntity();
         unicornEntity.setUri(uri);
-        unicornEntity.setVersion("Version 1.0");
+        unicornEntity.setVersion("1.0");
         unicornEntity.setPulseIndex(maxPulseIndex);
         unicornEntity.setTimeStamp(ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         unicornEntity.setCertificateId(this.certificateId);
