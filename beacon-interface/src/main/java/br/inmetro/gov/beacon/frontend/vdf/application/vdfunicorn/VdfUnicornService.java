@@ -68,7 +68,7 @@ public class VdfUnicornService {
         this.seedListUnicordCombination = new ArrayList<>();
         this.cipherSuite = CipherSuiteBuilder.build(0);
 
-        this.startList = new ArrayList<Integer>();
+        this.startList = new ArrayList<>();
         tmp.forEach(str-> startList.add(Integer.parseInt(str)));
 
         this.windowStart = DateUtil.getTimestampOfNextRun(ZonedDateTime.now(),startList);
@@ -152,8 +152,6 @@ public class VdfUnicornService {
 
         int iterations = Integer.parseInt(env.getProperty("beacon.unicorn.iterations"));
 
-        this.statusEnum = StatusEnum.STOPPED;
-
         logger.warn("Start unicorn sloth:");
         BigInteger y = sloth.mod_op(x, iterations).get();
         logger.warn("End unicorn sloth:");
@@ -162,6 +160,7 @@ public class VdfUnicornService {
 
         persist(y,x, iterations);
         seedListUnicordCombination.clear();
+        this.statusEnum = StatusEnum.STOPPED;
         this.windowStart = DateUtil.getTimestampOfNextRun(ZonedDateTime.now(), this.startList);
     }
 
