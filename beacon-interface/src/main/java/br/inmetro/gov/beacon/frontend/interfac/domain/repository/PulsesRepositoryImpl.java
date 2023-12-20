@@ -21,29 +21,29 @@ public class PulsesRepositoryImpl implements PulsesQueries {
 
     @Transactional(readOnly = true)
     public PulseEntity last(Long chainIndex){
-        Long pulseIndex = (Long) manager.createQuery(
-                "select max(p.pulseIndex) from PulseEntity p where p.chainIndex = :chainIndex")
+        Long lastPulseId = (Long) manager.createQuery(
+                "select max(p.id) from PulseEntity p where p.chainIndex = :chainIndex")
                 .setParameter("chainIndex", chainIndex)
                 .getSingleResult();
     	
-        if (pulseIndex==null){
+        if (lastPulseId==null){
             return null;
         } else {
-            return findByChainAndPulseIndex(chainIndex, pulseIndex);
+            return findByChainAndPulseId(chainIndex, lastPulseId);
         }
     }
 
     @Transactional(readOnly = true)
     public PulseEntity first(Long chainIndex){
-        Long firstPulseIndex = (Long) manager.createQuery(
-                "select min(p.pulseIndex) from PulseEntity p where p.chainIndex = :chainIndex")
+        Long firstPulseId = (Long) manager.createQuery(
+                "select min(p.id) from PulseEntity p where p.chainIndex = :chainIndex")
                 .setParameter("chainIndex", chainIndex)
                 .getSingleResult();
 
-        if (firstPulseIndex==null){
+        if (firstPulseId==null){
             return null;
         } else {
-            return findByChainAndPulseIndex(chainIndex, firstPulseIndex);
+            return findByChainAndPulseId(chainIndex, firstPulseId);
         }
     }
 
@@ -65,6 +65,23 @@ public class PulsesRepositoryImpl implements PulsesQueries {
                             "where p.chainIndex = :chainIndex and p.pulseIndex = :pulseIdx")
                     .setParameter("chainIndex", chainIndex)
                     .setParameter("pulseIdx", pulseIdx)
+                    .getSingleResult();
+
+            return recordEntity;
+        } catch (NoResultException e){
+            return null;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public PulseEntity findByChainAndPulseId(Long chainIndex, Long pulseId){
+        try {
+            PulseEntity recordEntity = (PulseEntity) manager
+                    .createQuery("from PulseEntity p " +
+                            "join fetch p.listValueEntities lve " +
+                            "where p.chainIndex = :chainIndex and p.id = :pulseId")
+                    .setParameter("chainIndex", chainIndex)
+                    .setParameter("pulseId", pulseId)
                     .getSingleResult();
 
             return recordEntity;

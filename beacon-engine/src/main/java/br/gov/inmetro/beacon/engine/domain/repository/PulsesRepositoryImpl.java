@@ -33,7 +33,7 @@ public class PulsesRepositoryImpl implements PulsesQueries {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public PulseEntity first(Long chainIndex){
         Long firstPulseIndex = (Long) manager.createQuery(
                 "select min(p.pulseIndex) from PulseEntity p where p.chainIndex = :chainIndex")
