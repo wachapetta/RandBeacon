@@ -52,6 +52,7 @@ public class QuerySequencePulsesService {
         ZonedDateTime nextHour = target.plusHours(1).withMinute(0).withSecond(0).withNano(0);
 
         List<ZonedDateTime> firstDaysOfYears = new ArrayList();
+        firstDaysOfYears.add(null);
         ZonedDateTime link = target.with(TemporalAdjusters.firstDayOfNextYear()).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         while(link.isBefore( anchor)){
@@ -145,6 +146,7 @@ public class QuerySequencePulsesService {
         ZonedDateTime nextHour = target.getTimeStamp().plusHours(1).withMinute(0).withSecond(0).withNano(0);
 
         List<ZonedDateTime> firstDaysOfYears = new ArrayList();
+        firstDaysOfYears.add(null);
         ZonedDateTime link = target.getTimeStamp().with(TemporalAdjusters.firstDayOfNextYear()).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         while(link.isBefore( anchor.getTimeStamp())){

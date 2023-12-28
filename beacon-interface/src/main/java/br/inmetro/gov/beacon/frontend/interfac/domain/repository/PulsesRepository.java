@@ -42,7 +42,7 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
     String fullSkipList = ""+
             "select * from "+
                     "( "+
-                            "SELECT * from pulse p where p.pulse_index =  ?2 "+
+                            "SELECT * from pulse p where p.time_stamp =  ?2 "+
                                 "union "+
                             "SELECT distinct * from pulse p where p.time_stamp> ?2 AND p.time_stamp < ?6 "+
                                 "union "+
@@ -54,7 +54,7 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
                                 "union "+
                             "SELECT distinct * from pulse p where p.time_stamp in ?7 "+
                                 "union "+
-                            "SELECT * from pulse p where p.pulse_index =  ?1 "+
+                            "SELECT * from pulse p where p.time_stamp =  ?1 "+
                     ") p order by p.time_stamp";
 
 
@@ -65,7 +65,7 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
     String countFullSkipList = ""+
             "select count(id) from "+
             "( "+
-            "SELECT id from pulse p where p.pulse_index =  ?2 "+
+            "SELECT id from pulse p where p.time_stamp =  ?2 "+
             "union "+
             "SELECT distinct id from pulse p where p.time_stamp> ?2 AND p.time_stamp < ?6 "+
             "union "+
@@ -75,9 +75,9 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
             "union "+
             "SELECT distinct id from pulse p where p.time_stamp > ?2 AND p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 "+
             "union "+
-            "SELECT distinct id from pulse p where p.time_stamp in ?7"+
+            "SELECT distinct id from pulse p where p.time_stamp in ?7 "+
             "union "+
-            "SELECT id from pulse p where p.pulse_index =  ?1 "+
+            "SELECT id from pulse p where p.time_stamp =  ?1 "+
             ") p";
     @Cacheable(value = "countSkipLists",key = "#anchor.toInstant().toEpochMilli().toString()+#target.toInstant().toEpochMilli().toString()")
     @Query(value = countFullSkipList, nativeQuery = true)
@@ -87,19 +87,19 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
     String countskipListByChain = ""+
             "select count(id) from "+
             "( "+
-            "SELECT id from pulse p where p.pulse_index =  ?2 AND p.chain_index=?7 "+
+            "SELECT id from pulse p where p.pulse_index =  ?2 AND p.chain_index = ?8 "+
             "union "+
-            "SELECT distinct id from pulse p where p.pulse_index> ?2 AND  p.time_stamp < ?6  AND p.chain_index=?7 "+
+            "SELECT distinct id from pulse p where p.pulse_index> ?2 AND  p.time_stamp < ?6  AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?5 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?5 and minute(p.time_stamp)=0 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?7 "+
+            "SELECT distinct id from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct id from pulse p where p.pulse_index in ?7 "+
+            "SELECT distinct id from pulse p where p.time_stamp in ?7 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT id from pulse p where p.pulse_index =  ?1 AND p.chain_index=?8 "+
+            "SELECT id from pulse p where p.pulse_index =  ?1 AND p.chain_index= ?8 "+
             ") p";
     @Cacheable(value = "countSkipListsByChainAndIndexes",key = "#anchorIdx.toString()+\":\"+#targetIdx.toString()+\":\"+#chainIdx.toString()")
     @Query(value = countskipListByChain, nativeQuery = true)
@@ -109,19 +109,19 @@ public interface PulsesRepository extends JpaRepository<PulseEntity, Long>, Puls
     String skipListByChainAndIndex = ""+
             "select * from "+
             "( "+
-            "SELECT * from pulse p where p.pulse_index =  ?2 AND p.chain_index=?7 "+
+            "SELECT * from pulse p where p.pulse_index =  ?2 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct * from pulse p where p.pulse_index> ?2 AND p.time_stamp < ?6 AND p.chain_index=?8 "+
+            "SELECT distinct * from pulse p where p.pulse_index> ?2 AND p.time_stamp < ?6 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?5 and minute(p.time_stamp)=0 AND p.chain_index=?8 "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?5 and minute(p.time_stamp)=0 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?8 "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?4 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index=?8 "+
+            "SELECT distinct * from pulse p where p.pulse_index > ?2 AND p.time_stamp < ?3 and  day(p.time_stamp)=1 and hour(p.time_stamp)=0 and minute(p.time_stamp)=0 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT distinct * from pulse p where p.pulse_index in ?7 AND p.chain_index=?8"+
+            "SELECT distinct * from pulse p where p.time_stamp in ?7 AND p.chain_index= ?8 "+
             "union "+
-            "SELECT * from pulse p where p.pulse_index =  ?1 AND p.chain_index=?8 "+
+            "SELECT * from pulse p where p.pulse_index =  ?1 AND p.chain_index= ?8 "+
             ") p order by p.time_stamp";
 
     @Query(value = skipListByChainAndIndex, nativeQuery = true)
