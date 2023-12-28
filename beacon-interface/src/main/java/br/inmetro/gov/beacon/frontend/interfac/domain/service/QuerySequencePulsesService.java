@@ -51,15 +51,23 @@ public class QuerySequencePulsesService {
         ZonedDateTime nextDay = target.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         ZonedDateTime nextHour = target.plusHours(1).withMinute(0).withSecond(0).withNano(0);
 
+        List<ZonedDateTime> firstDaysOfYears = new ArrayList();
+        ZonedDateTime link = target.with(TemporalAdjusters.firstDayOfNextYear()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        while(link.isBefore( anchor)){
+            firstDaysOfYears.add(link);
+            link = link.plusYears(1);
+        }
+
         List<PulseDto> dtos = new ArrayList<>();
         List<PulseEntity> sequence = new ArrayList<>();
 
         int pageIndex = offset / limit;
         Pageable page = PageRequest.of(pageIndex,limit);
 
-        long countSkipList = pulsesRepository.countFullSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour);
+        long countSkipList = pulsesRepository.countFullSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour,firstDaysOfYears);
 
-        sequence.addAll(pulsesRepository.getFullSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour,page));
+        sequence.addAll(pulsesRepository.getFullSkiplist(anchor,target,nextYear,nextMonth,nextDay,nextHour,firstDaysOfYears,page));
 
         sequence.forEach(entity -> dtos.add(new PulseDto(entity)));
 
@@ -136,15 +144,23 @@ public class QuerySequencePulsesService {
         ZonedDateTime nextDay = target.getTimeStamp().plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         ZonedDateTime nextHour = target.getTimeStamp().plusHours(1).withMinute(0).withSecond(0).withNano(0);
 
+        List<ZonedDateTime> firstDaysOfYears = new ArrayList();
+        ZonedDateTime link = target.getTimeStamp().with(TemporalAdjusters.firstDayOfNextYear()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        while(link.isBefore( anchor.getTimeStamp())){
+            firstDaysOfYears.add(link);
+            link = link.plusYears(1);
+        }
+
         List<PulseDto> dtos = new ArrayList<>();
         List<PulseEntity> sequence = new ArrayList<>();
 
         int pageIndex = offset / limit;
         Pageable page = PageRequest.of(pageIndex,limit);
 
-        long countSkipList = pulsesRepository.countSkiplistByChain(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour, target.getChainIndex());
+        long countSkipList = pulsesRepository.countSkiplistByChain(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour,firstDaysOfYears, target.getChainIndex());
 
-        sequence.addAll(pulsesRepository.getSkiplistByChainAndIndex(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour, target.getChainIndex(),page));
+        sequence.addAll(pulsesRepository.getSkiplistByChainAndIndex(anchor.getPulseIndex(),target.getPulseIndex(),nextYear,nextMonth,nextDay,nextHour, firstDaysOfYears,target.getChainIndex(),page));
 
         sequence.forEach(entity -> dtos.add(new PulseDto(entity)));
 
