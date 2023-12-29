@@ -83,10 +83,10 @@ public class QuerySequencePulsesService {
 
         int lastPage = (int) Math.ceil(countSkipList / limit);
 
-        String previous=countSkipList<limit || previousIndex<0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time="+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ previousIndex * limit +"&limit="+limit;
-        String next= nextIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time="+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ nextIndex * limit +"&limit="+limit;
+        String previous=countSkipList<limit || previousIndex<0 ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time/"+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ previousIndex * limit +"&limit="+limit;
+        String next= nextIndex*limit > countSkipList ?"null":env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time/"+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ nextIndex * limit +"&limit="+limit;
 
-        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time="+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ lastPage +"&limit="+limit;
+        String last= countSkipList<limit? first: env.getProperty("beacon.url")+"/beacon/"+ version +"/skiplist/time/"+ target.toInstant().toEpochMilli()+"/"+anchor.toInstant().toEpochMilli()+"?offset="+ lastPage*limit +"&limit="+limit;
 
         Map<String,String> links = new LinkedHashMap<>();
         links.put("first", first);
