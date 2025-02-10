@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beacon-input-config
+  namespace: beacon
+data:
+  application-test.properties: |-
+    server.port=8080
+  
+    spring.http.encoding.charset=UTF-8
+    
+    info.app.name=Beacon input
+    info.app.description=Input data
+    info.app.version=1.0.0.RELEASE
+    
+    #Database
+    spring.datasource.url=jdbc:mysql://10.21.21.41/beacon_input?useSSL=false
+    spring.datasource.username=beacon_input_k8s
+    spring.datasource.password=H8634pTbFj2s
+    spring.jpa.hibernate.ddl-auto=update
+    
+    #hibernate
+    spring.jpa.show-sql=false
+    #spring.jpa.properties.hibernate.hbm2.ddl.import_files=import.sql
+    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+    
+    #logging
+    #logging.file=logs/beacon-input.log
+    logging.level.root=error
+    
+    #SPRING MVC (WebMvcProperties)
+    spring.jpa.open-in-view=false
+    
+    #queue
+    spring.rabbitmq.host=10.21.21.41
+    spring.rabbitmq.port=
+    spring.rabbitmq.username=user_rng_01
+    spring.rabbitmq.password=dBnCdgn9ixXEx
+    spring.rabbitmq.listener.simple.retry.enabled=false
+    
+    #########################################################################
+    #Beacon configurations
+    #########################################################################
+    beacon.period=60000
+    beacon.noise-source=1-Data Center Xerem
+    
+    #Local RNG - if profile = default ou test
+    #Use NativePRNG for Linux or SHA1PRNG for windows server
+    beacon.entropy.local.rng=SHA1PRNG
+    #beacon.entropy.device.description=SHA1PRNG
+    
+    #if profile = producao
+    #beacon.entropy.command=/home/beacon/libqwqng-1.4/libqwqng-1.4/build/examples/./randbytes
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon-input-deployment
+  namespace: beacon
+  labels:
+    app: beacon-input-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beacon-input-deployment
+  template:
+    metadata:
+      #annotations:
+      #  sidecar.istio.io/inject: "true"
+      labels:
+        app: beacon-input-deployment
+    spec:
+      containers:
+        - name: beacon-input-deployment
+          image: registro-docker.inmetro.gov.br/inmetro/beacon/beacon-input:1
+          imagePullPolicy: Always # mudar em producao
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "test"
+          volumeMounts:
+            - mountPath: beacon/config
+              name: app-vol
+      volumes:
+        - name: app-vol
+          configMap:
+            name: beacon-input-config
+      imagePullSecrets:
+        - name: inmetro-registry
+      nodeSelector:
+        applicationType: oltp
