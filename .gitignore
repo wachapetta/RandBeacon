@@ -30,3 +30,5 @@
 /.mvn/wrapper/maven-wrapper.jar
 /.mvn/wrapper/maven-wrapper.properties
 /.metadata/
+
+beacon-device-generator/target
