@@ -63,4 +63,20 @@ public class BeaconDeviceRandomGeneratorTest {
             Assert.assertEquals(dummy512Bits, noise2);
         }
     }
+
+    @Test
+    public void testDeviceEntropyReaderPersistentStream() throws Exception {
+        String dummy512BitsA = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde1";
+        String dummy512BitsB = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde2";
+        // Simula saída com 2 linhas de cabeçalho e duas amostras subsequentes
+        String script = "sh -c \"echo header1; echo header2; echo " + dummy512BitsA + "; echo " + dummy512BitsB + "\"";
+
+        try (DeviceEntropyReader reader = new DeviceEntropyReader(script, 3)) {
+            String noise1 = reader.getNoise512Bits();
+            Assert.assertEquals(dummy512BitsA, noise1);
+
+            String noise2 = reader.getNoise512Bits();
+            Assert.assertEquals(dummy512BitsB, noise2);
+        }
+    }
 }
