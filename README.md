@@ -32,7 +32,8 @@ O inmetro beacon é composto por 3 microserviços e uma biblioteca compartilhada
  * [Beacon Input](https://github.com/siccciber/RandBeacon/tree/master/beacon-input): Processo de aquisição da entropia;
  * [Beacon Engine](https://github.com/siccciber/RandBeacon/tree/master/beacon-engine): Implementação do protocolo NISTIR. Os novos pulsos são gerados neste processo;
  * [Beacon Interface](https://github.com/siccciber/RandBeacon/tree/master/beacon-interface): Responsável pela publicação externa de todos os pulsos gerados;   
- * [Beacon libs](https://github.com/siccciber/RandBeacon/tree/master/beacon-libs): Bibliotecas compartilhadas entre os projetos.
+ * [Beacon libs](https://github.com/siccciber/RandBeacon/tree/master/beacon-libs): Bibliotecas compartilhadas entre os projetos;
+ * [Beacon Device Generator](beacon-device-generator/README.md): Utilitário CLI para geração massiva de arquivos de aleatoriedade a partir de dispositivo físico de entropia.
 
 <!--
 ## Beacon Engine

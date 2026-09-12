@@ -51,15 +51,47 @@ Mantém um único processo aberto no sistema operacional e consome o fluxo cont�
 java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.bin -c "/home/beacon/libqwqng-1.4/libqwqng-1.4/build/examples/./randbytes" -l 1 --stream
 ```
 
-### 5. Executar em segundo plano no CentOS (`nohup`)
+### 5. Executar em segundo plano no CentOS (`nohup`) e Monitorar
 Ideal para geração de arquivos grandes que levam tempo:
-```
+```bash
 nohup java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.bin --stream > gerador.log 2>&1 &
 ```
-Acompanhe o progresso em tempo real:
-```
-tail -f gerador.log
-```
+
+#### Como saber se o processo está sendo executado e acompanhar o progresso:
+
+1. **Acompanhar o progresso em tempo real pelo log:**
+   ```bash
+   tail -f gerador.log
+   ```
+   *(Pressione `Ctrl + C` para sair do monitoramento sem parar a execução)*
+
+2. **Verificar se o processo Java está ativo no sistema:**
+   ```bash
+   # Opção A: Ver linha de comando completa
+   ps aux | grep beacon-device-generator | grep -v grep
+
+   # Opção B: Utilitário nativo do Java (mostra o PID)
+   jps -l | grep beacon-device-generator
+   ```
+
+3. **Acompanhar o crescimento do arquivo de saída em disco:**
+   ```bash
+   # Tamanho atual legível
+   ls -lh /dados/random_4g.bin
+
+   # Atualização contínua a cada 2 segundos na tela
+   watch -n 2 ls -lh /dados/random_4g.bin
+   ```
+
+4. **Verificar se o processo nativo do dispositivo físico está ativo:**
+   ```bash
+   ps aux | grep -E "randbytes|rnorm" | grep -v grep
+   ```
+
+5. **Verificar o encerramento do processo após a conclusão:**
+   ```bash
+   cat gerador.log
+   ```
 
 ### 6. Modo Simulação / Teste Rápido (`--mock`)
 Gera dados criptográficos locais via `SecureRandom`/`NativePRNG` sem necessitar do hardware físico conectado:
