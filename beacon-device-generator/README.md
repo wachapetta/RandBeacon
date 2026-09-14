@@ -15,12 +15,26 @@ A ferramenta utiliza a mesma lógica de iteração e amostragem de 512 bits pres
 
 ## 🔨 Como Compilar
 
-Dentro da pasta do projeto, execute:
+### 1. Compilar o Utilitário Nativo C++ (`qngstream`)
+O `qngstream` é o utilitário nativo que conversa diretamente com a biblioteca `libqwqng` e o hardware ComScire, entregando blocos contínuos de 4.096 bytes (32.768 bits) com recuperação de timeouts.
 
+No servidor onde o dispositivo está instalado:
+```bash
+cd libqwqng-1.4
+g++ -O3 qngstream.cpp -Ilibqwqng-1.4/src -Lbuild/src -Wl,-rpath,/home/beacon/libqwqng-1.4/build/src -lqwqng -lftdi1 -lusb-1.0 -lpthread -o qngstream
 ```
+*(Ou execute o script automatizado `./compile_qngstream.sh`)*.
+
+Teste o executável:
+```bash
+./qngstream | head -n 1
+```
+
+### 2. Compilar o Gerador Java (`beacon-device-generator.jar`)
+Dentro da pasta `beacon-device-generator`, execute:
+```bash
 ./mvnw clean package
 ```
-
 O arquivo JAR executável standalone será gerado em:
 ```
 target/beacon-device-generator.jar
