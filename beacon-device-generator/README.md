@@ -30,31 +30,16 @@ target/beacon-device-generator.jar
 
 ## 🚀 Como Executar
 
-### 1. Gerar 4 GB Binários via Dispositivo Físico
-```
-java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.bin -c "/var/beacon-input/./randbytesbeacon" -l 57
-```
-
-### 2. Gerar 4 GB usando outro comando (ex: `rnorm`)
-```
-java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.bin -c "rnorm --precision 40" -l 57
-```
-
-### 3. Gerar em formato texto Hexadecimal (linhas de 128 caracteres)
-```
-java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.hex -f hex
-```
-
-### 4. Modo Streaming Contínuo (Alta Performance - Recomendado para 4 GB)
-Mantém um único processo aberto no sistema operacional e consome o fluxo contínuo de entropia, eliminando a sobrecarga de recriar processos a cada 64 bytes:
-```
-java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.bin -c "/home/beacon/libqwqng-1.4/libqwqng-1.4/build/examples/./randbytes" -l 1 --stream
-```
-
-### 5. Executar em segundo plano no CentOS (`nohup`) e Monitorar
-Ideal para geração de arquivos grandes que levam tempo:
+### 1. Gerar 4 GB com Alta Performance (`qngstream` por padrão)
+O utilitário agora auto-detecta o `qngstream` e ativa o modo streaming com buffer em RAM por padrão:
 ```bash
-nohup java -jar target/beacon-device-generator.jar -s 4G -o /dados/random_4g.bin --stream > gerador.log 2>&1 &
+java -jar target/beacon-device-generator.jar -s 4G -o entropy_4gb.hex
+```
+
+### 2. Executar em segundo plano no CentOS (`nohup`) e Monitorar
+Ideal para geração de arquivos grandes sem travar o terminal:
+```bash
+nohup java -jar target/beacon-device-generator.jar -s 4G -o entropy_4gb.hex > gerador.log 2>&1 &
 ```
 
 #### Como saber se o processo está sendo executado e acompanhar o progresso:
@@ -109,8 +94,10 @@ java -jar target/beacon-device-generator.jar -s 100M -o /tmp/teste_100m.bin --mo
 | `-o` | `--output` | `entropy_4gb.bin` | Caminho do arquivo de destino. |
 | `-c` | `--command` | `/var/beacon-input/./randbytesbeacon` | Comando do sistema executado para ler do dispositivo. |
 | `-l` | `--line` | `57` | Número da linha na saída do comando contendo a sequência hexadecimal. |
-| `-f` | `--format` | `binary` | Formato do arquivo gerado: `binary` (raw bytes) ou `hex` (texto). |
+| `-f` | `--format` | `binary` | Formato do arquivo gerado: `binary` (raw 64 bytes) ou `hex` (texto). |
 | `-t` | `--stream` | `false` | Modo streaming contínuo: mantém 1 único processo aberto para altíssima vazão. |
+| `-b` | `--buffer` | `10000` | Capacidade da fila em memória RAM para pré-busca contínua (Produtor-Consumidor). |
+| - | `--no-buffer` | `false` | Desativa o buffer assíncrono em memória (execução estritamente síncrona). |
 | `-m` | `--mock` | `false` | Executa no modo simulação usando `SecureRandom` (NativePRNG). |
 | `-h` | `--help` | - | Exibe o menu de ajuda com a lista de opções. |
 
@@ -118,7 +105,8 @@ java -jar target/beacon-device-generator.jar -s 100M -o /tmp/teste_100m.bin --mo
 
 ## 📊 Detalhes Técnicos
 
-- **Amostragem**: Cada chamada ao dispositivo produz 512 bits = 64 bytes = 128 caracteres hexadecimais.
-- **Escrita em Disco**: Buffer de 1 MB (`BufferedOutputStream`) para alta eficiência de I/O no CentOS.
-- **Gerenciamento de Recursos**: Fechamento rigoroso de streams (`stdin`, `stdout`, `stderr`) e encerramento de processos (`Process.destroy()`) a cada iteração, prevenindo o erro `Too many open files`.
-- **Monitoramento**: Exibição de progresso com porcentagem, volume gravado (MB), taxa instantânea (MB/s) e estimativa de término (ETA).
+- **Amostragem**: Cada leitura produz 512 bits = 64 bytes = 128 caracteres hexadecimais.
+- **Pipelining Assíncrono (Entropy Pool)**: Uma thread de segundo plano pré-carrega continuamente amostras do dispositivo físico para uma fila em RAM (`ArrayBlockingQueue`), desacoplando o I/O do hardware do I/O de escrita em disco.
+- **Escrita em Disco**: Buffer de 1 MB (`BufferedOutputStream`) para alta eficiência de I/O no CentOS / Linux.
+- **Gerenciamento de Recursos**: Encerramento limpo via `AutoCloseable`, garantindo finalização das threads e destruição de processos externos (`Process.destroy()`).
+- **Monitoramento**: Exibição de progresso em tempo real com porcentagem, volume gravado (MB), taxa instantânea (MB/s) e estimativa de término (ETA).

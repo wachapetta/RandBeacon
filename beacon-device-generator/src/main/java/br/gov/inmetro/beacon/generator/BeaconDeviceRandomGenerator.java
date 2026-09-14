@@ -18,11 +18,13 @@ public class BeaconDeviceRandomGenerator {
 
         String sizeArg = "4G";
         String outputPath = "entropy_4gb.hex";
-        String command = "/home/beacon/libqwqng-1.4/libqwqng-1.4/build/examples/./randbytes";
+        String command = resolveDefaultCommand();
         int targetLine = 1;
         String format = "hex"; // "binary" ou "hex"
         boolean mock = false;
-        boolean streamMode = false;
+        boolean streamMode = true; // Streaming contínuo ativado por padrão
+        int bufferCapacity = BufferedDeviceEntropyReader.DEFAULT_BUFFER_CAPACITY;
+        boolean useBuffer = true;
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -55,6 +57,16 @@ public class BeaconDeviceRandomGenerator {
                 case "-t":
                     streamMode = true;
                     break;
+                case "-b":
+                case "--buffer":
+                    if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+                        bufferCapacity = Integer.parseInt(args[++i]);
+                    }
+                    useBuffer = true;
+                    break;
+                case "--no-buffer":
+                    useBuffer = false;
+                    break;
                 default:
                     if (!args[i].startsWith("-") && i == 0) {
                         sizeArg = args[i];
@@ -72,13 +84,20 @@ public class BeaconDeviceRandomGenerator {
             return;
         }
 
-        IEntropyReader reader;
+        IEntropyReader rawReader;
         if (mock) {
-            reader = new LocalRngFallbackReader();
+            rawReader = new LocalRngFallbackReader();
         } else if (streamMode) {
-            reader = new StreamingDeviceEntropyReader(command);
+            rawReader = new StreamingDeviceEntropyReader(command);
         } else {
-            reader = new DeviceEntropyReader(command, targetLine);
+            rawReader = new DeviceEntropyReader(command, targetLine);
+        }
+
+        IEntropyReader reader;
+        if (useBuffer && bufferCapacity > 0) {
+            reader = new BufferedDeviceEntropyReader(rawReader, bufferCapacity);
+        } else {
+            reader = rawReader;
         }
 
         System.out.println("==================================================================");
@@ -87,6 +106,7 @@ public class BeaconDeviceRandomGenerator {
         System.out.printf("Tamanho Alvo    : %s (%d bytes)%n", sizeArg, totalTargetBytes);
         System.out.printf("Arquivo Destino : %s%n", outputPath);
         System.out.printf("Fonte / Modo    : %s%n", mock ? "Simulação (SecureRandom/NativePRNG)" : (streamMode ? "Dispositivo Físico (Streaming Contínuo)" : "Dispositivo Físico (Padrão)"));
+        System.out.printf("Buffer / Prefetch: %s%n", useBuffer ? (bufferCapacity + " amostras em RAM") : "Desativado (Síncrono)");
         if (!mock) {
             System.out.printf("Comando Dispos. : %s%n", command);
             System.out.printf("Linha Retorno   : %d%n", targetLine);
@@ -224,22 +244,40 @@ public class BeaconDeviceRandomGenerator {
         return false;
     }
 
+    private static String resolveDefaultCommand() {
+        String[] candidates = {
+            "/usr/local/bin/qngstream",
+            "/home/beacon/libqwqng-1.4/qngstream",
+            System.getProperty("user.home") + "/libqwqng-1.4/qngstream",
+            "./qngstream"
+        };
+        for (String path : candidates) {
+            File f = new File(path);
+            if (f.exists() && f.canExecute()) {
+                return path;
+            }
+        }
+        return "qngstream";
+    }
+
     private static void printUsage() {
         System.out.println("Uso: java -jar beacon-device-generator.jar [opções]");
         System.out.println();
         System.out.println("Opções:");
         System.out.println("  -s, --size <tamanho>      Tamanho do arquivo (ex: 4G, 4096M, 500K, 1073741824). Padrão: 4G");
-        System.out.println("  -o, --output <caminho>    Caminho do arquivo de saída. Padrão: entropy_4gb.bin");
-        System.out.println("  -c, --command <comando>   Comando do dispositivo. Padrão: /var/beacon-input/./randbytesbeacon");
-        System.out.println("  -l, --line <número>       Linha de retorno do dado hex. Padrão: 57");
-        System.out.println("  -f, --format <bin|hex>    Formato de saída: 'binary' (raw 64 bytes) ou 'hex' (texto). Padrão: binary");
-        System.out.println("  -t, --stream              Modo streaming contínuo (mantém 1 único processo aberto, alta performance)");
+        System.out.println("  -o, --output <caminho>    Caminho do arquivo de saída. Padrão: entropy_4gb.hex");
+        System.out.println("  -c, --command <comando>   Comando do dispositivo. Padrão: qngstream (auto-detectado)");
+        System.out.println("  -l, --line <número>       Linha de retorno do dado hex. Padrão: 1");
+        System.out.println("  -f, --format <bin|hex>    Formato de saída: 'binary' (raw bytes) ou 'hex' (texto). Padrão: hex");
+        System.out.println("  -t, --stream              Modo streaming contínuo (ativado por padrão)");
+        System.out.println("  -b, --buffer <capacidade> Tamanho da fila de pré-busca em RAM (Produtor-Consumidor). Padrão: 10000");
+        System.out.println("  --no-buffer               Desativa o buffer assíncrono (execução estritamente síncrona)");
         System.out.println("  -m, --mock                Modo simulação usando SecureRandom (útil sem dispositivo conectado)");
         System.out.println("  -h, --help                Exibe esta mensagem de ajuda");
         System.out.println();
         System.out.println("Exemplos no CentOS:");
-        System.out.println("  java -jar beacon-device-generator.jar -s 4G -o /dados/random_4g.bin");
-        System.out.println("  java -jar beacon-device-generator.jar -s 4G -o /dados/random_4g.bin -c \"rnorm --precision 40\" -l 57");
+        System.out.println("  java -jar beacon-device-generator.jar -s 4G -o entropy_4gb.hex");
+        System.out.println("  nohup java -jar beacon-device-generator.jar -s 4G -o entropy_4gb.hex > gerador.log 2>&1 &");
         System.out.println("  java -jar beacon-device-generator.jar -s 100M -o /dados/teste.bin --mock");
     }
 }

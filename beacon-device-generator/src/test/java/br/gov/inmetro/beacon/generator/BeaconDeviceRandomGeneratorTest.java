@@ -79,4 +79,34 @@ public class BeaconDeviceRandomGeneratorTest {
             Assert.assertEquals(dummy512BitsB, noise2);
         }
     }
+
+    @Test
+    public void testBufferedDeviceEntropyReaderPrefetch() throws Exception {
+        LocalRngFallbackReader fallback = new LocalRngFallbackReader();
+        try (BufferedDeviceEntropyReader reader = new BufferedDeviceEntropyReader(fallback, 200)) {
+            // Aguarda alguns milissegundos para a thread em background abastecer o buffer
+            Thread.sleep(50);
+            Assert.assertTrue("O buffer assíncrono deveria conter amostras pré-carregadas", reader.getQueueSize() > 0);
+
+            // Consome 10 amostras instantaneamente
+            for (int i = 0; i < 10; i++) {
+                String noise = reader.getNoise512Bits();
+                Assert.assertNotNull(noise);
+                Assert.assertEquals(128, noise.length());
+            }
+        }
+    }
+
+    @Test(expected = Exception.class)
+    public void testBufferedDeviceEntropyReaderPropagatesException() throws Exception {
+        IEntropyReader faultyReader = () -> {
+            throw new RuntimeException("Erro simulado do dispositivo de hardware");
+        };
+
+        try (BufferedDeviceEntropyReader reader = new BufferedDeviceEntropyReader(faultyReader, 50)) {
+            // Espera a thread produtora falhar
+            Thread.sleep(50);
+            reader.getNoise512Bits();
+        }
+    }
 }

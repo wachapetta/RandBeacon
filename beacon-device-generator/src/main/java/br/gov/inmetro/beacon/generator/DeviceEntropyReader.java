@@ -36,11 +36,14 @@ public class DeviceEntropyReader implements IEntropyReader, AutoCloseable {
 
         close();
 
+        ProcessBuilder pb;
         if (command.contains(" ") || command.contains("|") || command.contains("\"") || command.contains("'")) {
-            this.process = new ProcessBuilder("/bin/sh", "-c", command).start();
+            pb = new ProcessBuilder("/bin/sh", "-c", command);
         } else {
-            this.process = new ProcessBuilder(command).start();
+            pb = new ProcessBuilder(command);
         }
+        configureEnvironment(pb);
+        this.process = pb.start();
 
         this.stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()), 65536);
 
@@ -163,5 +166,11 @@ public class DeviceEntropyReader implements IEntropyReader, AutoCloseable {
 
     public boolean isStarted() {
         return started && process != null && process.isAlive();
+    }
+
+    static void configureEnvironment(ProcessBuilder pb) {
+        String existingLd = pb.environment().get("LD_LIBRARY_PATH");
+        String customLd = "/home/beacon/libqwqng-1.4/build/src:/home/beacon/libqwqng-1.4/libqwqng-1.4/build/src:/usr/local/lib:/usr/local/lib64";
+        pb.environment().put("LD_LIBRARY_PATH", existingLd == null || existingLd.isEmpty() ? customLd : customLd + ":" + existingLd);
     }
 }
